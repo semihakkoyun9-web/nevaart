@@ -1,0 +1,28 @@
+# ====================================================================
+# NEVAART - SEO Dostu URL Yapısı ve Performans Optimizasyonu (.htaccess)
+# Kriter X (SEO dostu URL yapısı) & Kriter Y (Performans optimizasyonu)
+# ====================================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Mevcut dosya veya klasör değilse SEO dostu URL yönlendirmesi
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # /eser/refik-anadol-nature-dreams -> index.php?eser=refik-anadol-nature-dreams
+    RewriteRule ^eser/([a-zA-Z0-9\-]+)$ index.php?eser=$1 [L,QSA]
+
+    # /kategori/digital -> index.php?category=digital
+    RewriteRule ^kategori/([a-zA-Z0-9\-]+)$ index.php?category=$1 [L,QSA]
+</IfModule>
+
+# Gzip ve Önbellek (Cache) Optimizasyonu (Kriter Y)
+<IfModule mod_Expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+</IfModule>
+

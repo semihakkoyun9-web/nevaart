@@ -1,0 +1,6 @@
+{
+  "name": "NEVAART - Küresel Görsel Sanatlar ve Dijital Küratörlük Ansiklopedisi",
+  "description": "Lüks, minimalist ve akışkan dairesel animasyonlara sahip dijital sanatlar, sokak fotoğrafçılığı ve mimari küratörlük ansiklopedisi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

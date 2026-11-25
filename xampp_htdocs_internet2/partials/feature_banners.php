@@ -1,0 +1,149 @@
+<?php
+/**
+ * NEVAART - 3. Bölüm: İkili Aksiyon Bannerları ve 4 Galeri Değer Rozeti
+ * Birebir React FeatureBannersSection.tsx karşılığı — %100 aynı HTML ve CSS sınıfları
+ */
+$banner1Art = $artworks[0] ?? null;
+foreach ($artworks as $a) {
+    if ($a['category'] === 'concept' || $a['category'] === 'digital') {
+        $banner1Art = $a;
+        break;
+    }
+}
+$banner2Art = $artworks[1] ?? $artworks[0] ?? null;
+foreach ($artworks as $a) {
+    if ($a['category'] === 'architecture' || $a['category'] === 'illustration') {
+        $banner2Art = $a;
+        break;
+    }
+}
+?>
+<div class="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <!-- 2 Feature Banners: "Kendi Eserini Yayınla" & "Başyapıtların Hikayesi" -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+    
+    <!-- Banner 1: Publish Your Art -->
+    <div 
+      onclick="NevaApp.openModal('upload-modal')"
+      class="relative h-[290px] sm:h-[350px] rounded-3xl overflow-hidden shadow-lg group cursor-pointer border border-stone-200"
+    >
+      <img 
+        src="<?= e($banner1Art['imageUrl']) ?>" 
+        alt="Kendi Eserini Yayınla" 
+        class="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex flex-col justify-end p-8 sm:p-10">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-amber-400 font-mono mb-1 font-semibold">
+          <?= $currentLang === 'tr' ? 'SANATÇI AÇIK ALANI' : 'OPEN ARTIST SUBMISSION' ?>
+        </span>
+        <h3 class="text-2xl sm:text-4xl font-display font-extrabold uppercase text-white tracking-tight leading-tight">
+          <?= $currentLang === 'tr' ? 'Kendi Eserini' : 'Publish Your' ?> <br />
+          <span class="font-light text-stone-200"><?= $currentLang === 'tr' ? 'Yayınla & Paylaş' : 'Art & Vision' ?></span>
+        </h3>
+        <p class="text-xs text-stone-300 mt-2 max-w-sm">
+          <?= $currentLang === 'tr' 
+            ? 'Çizimlerinizi, fotoğraflarınızı ve dijital işlerinizi arşive ekleyin; hikayenizi küratörlere ve sanatseverlere duyurun.'
+            : 'Upload your original illustrations, photographs, and digital creations. Share your story with curators worldwide.' ?>
+        </p>
+        <div class="mt-4">
+          <button 
+            type="button"
+            onclick="event.stopPropagation(); NevaApp.openModal('upload-modal');"
+            class="px-5 py-2 bg-white hover:bg-stone-100 text-black text-xs font-semibold uppercase tracking-wider rounded-full transition-all shadow-md cursor-pointer inline-flex items-center gap-2 group-hover:scale-105"
+          >
+            <span><?= $currentLang === 'tr' ? 'ESERİNİ ŞİMDİ YÜKLE' : 'SUBMIT YOUR ART' ?></span>
+            <?= icon('arrow-right', 'w-3 h-3') ?>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner 2: Read Masterpiece Stories -->
+    <div 
+      onclick="NevaApp.openArtworkModal(<?= (int)$banner2Art['id'] ?>)"
+      class="relative h-[290px] sm:h-[350px] rounded-3xl overflow-hidden shadow-lg group cursor-pointer border border-stone-200"
+    >
+      <img 
+        src="<?= e($banner2Art['imageUrl']) ?>" 
+        alt="Başyapıtların Hikayesi" 
+        class="w-full h-full object-cover group-hover:scale-106 transition-transform duration-700 ease-out"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex flex-col justify-end p-8 sm:p-10">
+        <span class="text-[10px] uppercase tracking-[0.25em] text-white/80 font-mono mb-1 font-semibold">
+          <?= $currentLang === 'tr' ? 'KÜRATÖR & FELSEFE NOTLARI' : 'CURATORIAL PROVENANCE' ?>
+        </span>
+        <h3 class="text-2xl sm:text-4xl font-display font-extrabold uppercase text-white tracking-tight leading-tight">
+          <?= $currentLang === 'tr' ? 'Eserlerin Gizli' : 'Stories Behind' ?> <br />
+          <span class="font-light text-stone-200"><?= $currentLang === 'tr' ? 'Hikayesini Oku' : 'The Masterpieces' ?></span>
+        </h3>
+        <p class="text-xs text-stone-300 mt-2 max-w-sm">
+          <?= $currentLang === 'tr'
+            ? 'Renk teorisi, sanatçının ruh hali ve eserin yaratım sürecindeki gizli detayları keşfedin.'
+            : 'Uncover the chromatic theory, artist emotions, and historical provenance behind each masterpiece.' ?>
+        </p>
+        <div class="mt-4">
+          <button 
+            type="button"
+            onclick="event.stopPropagation(); NevaApp.openArtworkModal(<?= (int)$banner2Art['id'] ?>);"
+            class="px-5 py-2 bg-white hover:bg-stone-100 text-black text-xs font-semibold uppercase tracking-wider rounded-full transition-all shadow-md cursor-pointer inline-flex items-center gap-2 group-hover:scale-105"
+          >
+            <span><?= $currentLang === 'tr' ? 'HİKAYEYİ İNCELE' : 'READ STORY' ?></span>
+            <?= icon('arrow-right', 'w-3 h-3') ?>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Open Gallery Value Badges -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-y border-stone-200">
+    <div class="flex flex-col items-center text-center p-3">
+      <div class="w-12 h-12 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-900 mb-3 shadow-xs">
+        <?= icon('palette', 'w-5 h-5 text-amber-800') ?>
+      </div>
+      <h4 class="text-xs font-bold uppercase tracking-wider text-stone-900">
+        <?= $currentLang === 'tr' ? 'Açık Sanatçı Alanı' : 'Open Artist Platform' ?>
+      </h4>
+      <p class="text-[11px] text-stone-500 mt-1 max-w-[200px]">
+        <?= $currentLang === 'tr' ? 'Kendi çizim ve fotoğraflarınızı özgürce yayınlayın' : 'Publish your drawings and photography freely' ?>
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center text-center p-3">
+      <div class="w-12 h-12 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-900 mb-3 shadow-xs">
+        <?= icon('book-open', 'w-5 h-5 text-amber-800') ?>
+      </div>
+      <h4 class="text-xs font-bold uppercase tracking-wider text-stone-900">
+        <?= $currentLang === 'tr' ? 'Derin Yaratım Hikayeleri' : 'Creation Stories' ?>
+      </h4>
+      <p class="text-[11px] text-stone-500 mt-1 max-w-[200px]">
+        <?= $currentLang === 'tr' ? 'Her eserin felsefesini, tekniğini ve renk teorisini öğrenin' : 'Discover the philosophy, technique, and color harmony' ?>
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center text-center p-3">
+      <div class="w-12 h-12 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-900 mb-3 shadow-xs">
+        <?= icon('landmark', 'w-5 h-5 text-amber-800') ?>
+      </div>
+      <h4 class="text-xs font-bold uppercase tracking-wider text-stone-900">
+        <?= $currentLang === 'tr' ? 'İkonik Başyapıtlar' : 'Historic Masterpieces' ?>
+      </h4>
+      <p class="text-[11px] text-stone-500 mt-1 max-w-[200px]">
+        <?= $currentLang === 'tr' ? 'Dünya sanat tarihine damga vuran eserlerle bir arada' : 'Curated alongside legendary art historical masterworks' ?>
+      </p>
+    </div>
+
+    <div class="flex flex-col items-center text-center p-3">
+      <div class="w-12 h-12 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-900 mb-3 shadow-xs">
+        <?= icon('message-square-text', 'w-5 h-5 text-amber-800') ?>
+      </div>
+      <h4 class="text-xs font-bold uppercase tracking-wider text-stone-900">
+        <?= $currentLang === 'tr' ? 'Doğrudan Sanatçı İletişimi' : 'Direct Artist Contact' ?>
+      </h4>
+      <p class="text-[11px] text-stone-500 mt-1 max-w-[200px]">
+        <?= $currentLang === 'tr' ? 'Beğendiğiniz eserin sahibiyle aracısız iletişime geçin' : 'Connect directly with the creator for inquiries or acquisition' ?>
+      </p>
+    </div>
+  </div>
+</div>
+
