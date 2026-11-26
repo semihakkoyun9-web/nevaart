@@ -80,25 +80,49 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
     });
   }, [artwork]);
 
-  // Audio guide simulation timer
+  // Gerçek Sesli Eser Anlatımı (Web Speech API — Tarayıcıda Gerçek Ses Çalar)
   useEffect(() => {
-    if (isPlayingAudio) {
-      audioIntervalRef.current = window.setInterval(() => {
-        setAudioProgress((prev) => {
-          if (prev >= 100) {
-            setIsPlayingAudio(false);
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 250);
-    } else {
-      if (audioIntervalRef.current) clearInterval(audioIntervalRef.current);
-    }
-    return () => {
+    const stopSpeech = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       if (audioIntervalRef.current) clearInterval(audioIntervalRef.current);
     };
-  }, [isPlayingAudio]);
+
+    if (isPlayingAudio) {
+      stopSpeech();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const textToSpeak = currentLang === 'tr'
+          ? `${artwork.title}. Sanatçı: ${artwork.artist}, ${artwork.year}. ${artwork.storyTr}`
+          : `${artwork.title}, by ${artwork.artist}, ${artwork.year}. ${artwork.storyEn}`;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = currentLang === 'tr' ? 'tr-TR' : 'en-US';
+        utterance.rate = 0.95;
+        utterance.onend = () => {
+          setIsPlayingAudio(false);
+          setAudioProgress(100);
+          if (audioIntervalRef.current) clearInterval(audioIntervalRef.current);
+        };
+        utterance.onerror = () => {
+          setIsPlayingAudio(false);
+          if (audioIntervalRef.current) clearInterval(audioIntervalRef.current);
+        };
+        setAudioProgress(5);
+        window.speechSynthesis.speak(utterance);
+
+        audioIntervalRef.current = window.setInterval(() => {
+          setAudioProgress((prev) => (prev < 95 ? prev + 2 : 95));
+        }, 400);
+      }
+    } else {
+      stopSpeech();
+      setAudioProgress(0);
+    }
+
+    return () => {
+      stopSpeech();
+    };
+  }, [isPlayingAudio, artwork, currentLang]);
 
   const activePalette = colorAnalysis?.palette || artwork.colorPalette;
   const currentPrintOption =
@@ -239,13 +263,19 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setOrderModalOpen(true)}
+            <a
+              href={
+                artwork.exhibitionLocation.city === 'Cleveland'
+                  ? `https://www.clevelandart.org/art/${encodeURIComponent(artwork.accessionNumber)}`
+                  : `https://www.metmuseum.org/art/collection/search?q=${encodeURIComponent(artwork.accessionNumber)}`
+              }
+              target="_blank"
+              rel="noreferrer"
               className="px-3.5 py-1.5 bg-black hover:bg-stone-800 text-white text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>{currentLang === 'tr' ? 'Sanatçıya Yaz' : 'Contact Artist'}</span>
-            </button>
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>{currentLang === 'tr' ? 'Resmi Müze Kaynağı' : 'Official Museum Record'}</span>
+            </a>
             <button
               onClick={handleShareWhatsapp}
               className="p-2 text-[#25D366] hover:bg-[#25D366]/10 rounded transition-colors cursor-pointer"
@@ -281,8 +311,8 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                 <div
                   onClick={() => setIsZoomed(!isZoomed)}
                   className={`overflow-hidden bg-stone-100 cursor-zoom-in relative ${isZoomed
-                      ? 'fixed inset-4 z-50 bg-black/95 p-4 flex items-center justify-center cursor-zoom-out'
-                      : 'aspect-4/3'
+                    ? 'fixed inset-4 z-50 bg-black/95 p-4 flex items-center justify-center cursor-zoom-out'
+                    : 'aspect-4/3'
                     }`}
                 >
                   <img
@@ -324,17 +354,14 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                 </div>
               </div>
 
-              {/* REAL PIXEL AI COLOR PALETTE & HARMONY ENGINE */}
-              <div className="mt-6 bg-white border border-[#E8E2D9] p-5 shadow-xs">
+              {/* COLOR PALETTE & HARMONY ANALYSIS */}
+              <div className="mt-6 bg-white border border-[#E8E2D9] p-5 shadow-xs rounded-xl">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#78350F]" />
-                    <h3 className="font-serif text-lg font-semibold text-[#1C1917]">
-                      Yapay Zeka Gerçek Piksel Renk ve Armoni Analizi
-                    </h3>
-                  </div>
+                  <h3 className="font-serif text-lg font-semibold text-[#1C1917]">
+                    {currentLang === 'tr' ? 'Renk Paleti ve Armoni Analizi' : 'Color Palette & Harmony Analysis'}
+                  </h3>
                   <span className="text-[10px] font-mono px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded">
-                    {isAnalyzingColors ? 'Pikseller Taranıyor...' : '✓ Görsel Piksel Analizi Doğrulandı'}
+                    {isAnalyzingColors ? 'Pikseller Taranıyor...' : '✓ Piksel Analizi'}
                   </span>
                 </div>
 
@@ -365,8 +392,8 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                           handleCopyHex(color.hex);
                         }}
                         className={`text-center p-2 rounded transition-all border cursor-pointer ${isSelected
-                            ? 'bg-stone-50 border-[#78350F] shadow-sm ring-1 ring-[#78350F]'
-                            : 'bg-white border-stone-200 hover:border-stone-400'
+                          ? 'bg-stone-50 border-[#78350F] shadow-sm ring-1 ring-[#78350F]'
+                          : 'bg-white border-stone-200 hover:border-stone-400'
                           }`}
                         title="Detay ve kopyalamak için tıkla"
                       >
@@ -423,15 +450,17 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                       </button>
                       <div>
                         <span className="text-[10px] font-mono uppercase tracking-widest text-[#78350F] block">
-                          Küratör Sesli Rehberi ({artwork.audioGuide.duration})
+                          {currentLang === 'tr' ? 'Gerçek Sesli Eser Anlatımı (Canlı Ses)' : 'Live Spoken Artwork Audio Guide'}
                         </span>
                         <strong className="text-xs text-stone-900">
-                          {artwork.audioGuide.narrator}
+                          {artwork.title} · {artwork.artist}
                         </strong>
                       </div>
                     </div>
                     <span className="text-[11px] font-mono text-stone-500">
-                      {isPlayingAudio ? 'Oynatılıyor...' : 'Dinlemek İçin Tıklayın'}
+                      {isPlayingAudio
+                        ? (currentLang === 'tr' ? '🔊 Sesli Okunuyor...' : '🔊 Speaking...')
+                        : (currentLang === 'tr' ? '▶ Dinlemek İçin Tıklayın' : '▶ Click to Listen')}
                     </span>
                   </div>
 
@@ -443,7 +472,7 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                     />
                   </div>
                   <p className="text-[11px] text-stone-600 mt-2 font-serif italic">
-                    "{artwork.audioGuide.summary}"
+                    &ldquo;{currentLang === 'tr' ? artwork.storyTr.slice(0, 140) : artwork.storyEn.slice(0, 140)}...&rdquo;
                   </p>
                 </div>
               )}
@@ -517,64 +546,78 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                   </p>
                 </div>
 
-                {/* DIRECT ARTIST CONTACT & ACQUISITION ACTION CARD */}
+                {/* OFFICIAL MUSEUM ARCHIVE & ACADEMIC RESEARCH LINKS (Replacing fake artist contact) */}
                 <div className="mt-6 p-4 bg-white border border-[#E8E2D9] rounded-xl shadow-xs">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4 text-amber-800" />
+                      <ExternalLink className="w-4 h-4 text-amber-800" />
                       <span className="text-xs uppercase font-mono font-bold text-stone-900">
-                        {currentLang === 'tr' ? 'Eser Sahibiyle İletişim & Edinme' : 'Contact Artist for Inquiries'}
+                        {currentLang === 'tr' ? 'Resmi Müze Arşivi & Daha Fazla Bilgi' : 'Official Museum Archive & Research'}
                       </span>
                     </div>
                     <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      {currentLang === 'tr' ? 'Doğrudan İletişim Açık' : 'Direct Inquiry Open'}
+                      CC0 Open Access
                     </span>
                   </div>
 
                   <p className="text-xs text-stone-600 mb-3 leading-relaxed">
                     {currentLang === 'tr'
-                      ? `Bu eseri beğendiyseniz; orijinalini edinmek, sergileme hakları veya sanatçıyla özel bir iş birliği görüşmek için doğrudan mesaj gönderebilirsiniz.`
-                      : `If you appreciate this artwork, you can contact the artist directly to discuss acquisition, exhibition rights, or custom collaborations.`}
+                      ? `Bu eser resmi müze açık erişim koleksiyonuna aittir. Sergi geçmişini, yüksek çözünürlüklü envanter kaydını ve sanat tarihi kaynaklarını aşağıdan inceleyebilirsiniz.`
+                      : `This masterpiece belongs to an official public-domain museum archive. Explore its provenance, high-resolution record, and art history references below.`}
                   </p>
 
-                  <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-stone-100">
-                    <button
-                      onClick={() => setOrderModalOpen(true)}
-                      className="flex-1 py-2.5 bg-black hover:bg-stone-800 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  <div className="pt-3 border-t border-stone-100 space-y-3">
+                    <a
+                      href={
+                        artwork.exhibitionLocation.city === 'Cleveland'
+                          ? `https://www.clevelandart.org/art/${encodeURIComponent(artwork.accessionNumber)}`
+                          : `https://www.metmuseum.org/art/collection/search?q=${encodeURIComponent(artwork.accessionNumber)}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="w-full py-2.5 px-4 bg-black hover:bg-stone-800 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-2 transition-all shadow-xs"
                     >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>{currentLang === 'tr' ? 'Eser Sahibine Mesaj Gönder' : 'Send Message to Artist'}</span>
-                    </button>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>{currentLang === 'tr' ? 'Resmi Müze Sayfasında İncele' : 'View Official Museum Record'}</span>
+                    </a>
 
-                    <button
-                      onClick={handleShareWhatsapp}
-                      className="py-2.5 px-3 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                      title="WhatsApp ile Eseri Paylaş"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                      <span>Paylaş</span>
-                    </button>
-
-                    <button
-                      onClick={handleChatCuratorWhatsapp}
-                      className="py-2.5 px-3 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                      title="Küratöre WhatsApp ile Danış"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Küratöre Danış</span>
-                    </button>
+                    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-[11px] text-stone-600 font-medium">
+                      <a
+                        href={`https://${currentLang === 'tr' ? 'tr' : 'en'}.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(`${artwork.artist} ${artwork.title}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-black hover:underline transition-colors"
+                      >
+                        {currentLang === 'tr' ? 'Wikipedia ↗' : 'Wikipedia ↗'}
+                      </a>
+                      <span className="text-stone-300">·</span>
+                      <a
+                        href={`https://artsandculture.google.com/search?q=${encodeURIComponent(`${artwork.artist} ${artwork.title}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-black hover:underline transition-colors"
+                      >
+                        Google Arts &amp; Culture ↗
+                      </a>
+                      <span className="text-stone-300">·</span>
+                      <button
+                        onClick={() => setOrderModalOpen(true)}
+                        className="hover:text-black hover:underline transition-colors cursor-pointer"
+                      >
+                        {currentLang === 'tr' ? 'Künyeyi E-Posta Gönder' : 'Email Provenance'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* AI Recommended Similar Artworks */}
+          {/* Similar Artworks */}
           <section className="mt-12 pt-8 border-t border-[#E8E2D9]">
-            <div className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-4 h-4 text-[#78350F]" />
+            <div className="mb-6">
               <h3 className="font-serif text-xl font-semibold text-stone-900">
-                Yapay Zeka Destekli Benzer Başyapıtlar
+                {currentLang === 'tr' ? 'Benzer Başyapıtlar' : 'Similar Masterpieces'}
               </h3>
             </div>
 

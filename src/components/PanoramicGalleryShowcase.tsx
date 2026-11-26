@@ -32,7 +32,8 @@ export const PanoramicGalleryShowcase: React.FC<PanoramicGalleryShowcaseProps> =
   const rafIdRef = useRef<number | null>(null);
 
   const count = artworks.length;
-  const angleStep = 360 / Math.max(1, count);
+  // Sabit görsel aralık (26°): Ekranda her zaman maksimum 6-7 eser görünür (ortada 1 + solda 3 + sağda 3), tüm 60+ eser sırayla döner!
+  const angleStep = 26;
 
   // Responsive radius for the panoramic gallery curve
   const getRadii = () => {
@@ -62,9 +63,9 @@ export const PanoramicGalleryShowcase: React.FC<PanoramicGalleryShowcaseProps> =
     const cards = cardsRef.current;
     if (!count) return;
 
-    // Determine card closest to center front (angle closest to 0 modulo 360)
-    const normalized = ((-angle % 360) + 360) % 360;
-    const newActive = Math.round(normalized / angleStep) % count;
+    // Sürekli sanal kart pozisyonu (tüm 60+ eser arasında sonsuz döngü)
+    const pos = -angle / angleStep;
+    const newActive = ((Math.round(pos) % count) + count) % count;
     if (newActive !== activeIndexRef.current) {
       activeIndexRef.current = newActive;
       setActiveIndex(newActive);
@@ -74,21 +75,30 @@ export const PanoramicGalleryShowcase: React.FC<PanoramicGalleryShowcaseProps> =
       const el = cards[i];
       if (!el) continue;
 
-      // Normalize card angle relative to center into [-180, 180]
-      let relAngle = ((angle + i * angleStep) % 360 + 360) % 360;
-      if (relAngle > 180) relAngle -= 360;
+      // En kısa dairesel kart uzaklığı [-count/2, +count/2]
+      let diff = ((i - pos) % count + count) % count;
+      if (diff > count / 2) diff -= count;
 
+      // Ekranda maksimum 6-7 kart (ortadaki + sağda 3 + solda 3) görünsün; gerisi tamamen gizli
+      if (Math.abs(diff) > 3.25) {
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+        el.style.visibility = 'hidden';
+        el.style.zIndex = '0';
+        continue;
+      }
+
+      el.style.visibility = 'visible';
+      const relAngle = diff * angleStep;
       const rad = (relAngle * Math.PI) / 180;
       const cosVal = Math.cos(rad);
       const sinVal = Math.sin(rad);
 
-      // Only display cards on the visible front panoramic arc
-      // Narrow visible arc to prevent rear/side cards appearing: cosVal < 0.05 means hidden
       if (cosVal < 0.05) {
         el.style.opacity = '0';
         el.style.pointerEvents = 'none';
+        el.style.visibility = 'hidden';
         el.style.zIndex = '0';
-        el.style.transform = 'translate3d(0, 500px, 0) scale(0.5)';
         continue;
       }
 

@@ -4,11 +4,11 @@
  * Birebir React ArtworkGrid.tsx karşılığı — %100 aynı HTML ve CSS sınıfları
  */
 $categoryLabels = [
-    'digital' => ['tr' => 'DİJİTAL SANAT', 'en' => 'DIGITAL ART'],
-    'street' => ['tr' => 'SOKAK FOTOĞRAFI', 'en' => 'STREET PHOTO'],
-    'illustration' => ['tr' => 'İLLÜSTRASYON', 'en' => 'ILLUSTRATION'],
-    'architecture' => ['tr' => 'MİMARİ', 'en' => 'ARCHITECTURE'],
-    'concept' => ['tr' => 'KONSEPT TASARIM', 'en' => 'CONCEPT DESIGN'],
+    'digital' => ['tr' => 'RENK TEORİSİ', 'en' => 'COLOR THEORY'],
+    'street' => ['tr' => 'PORTRE & YAŞAM', 'en' => 'PORTRAIT & LIFE'],
+    'illustration' => ['tr' => 'EMPRESYONİZM & UKİYO-E', 'en' => 'IMPRESSIONISM & UKIYO-E'],
+    'architecture' => ['tr' => 'PEYZAJ & MEKÂN', 'en' => 'LANDSCAPE & SPACE'],
+    'concept' => ['tr' => 'TARİH & MİTOLOJİ', 'en' => 'HISTORY & MYTHOLOGY'],
 ];
 
 $colorFamilies = [

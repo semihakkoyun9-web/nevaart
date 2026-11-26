@@ -27,7 +27,7 @@ window.NevaApp = (function () {
     uploadExtractedPalette: [],
     uploadDetectedDimensions: '60 × 90 cm',
     uploadHarmonyDiagnosed: 'Görsel piksellerinden çıkarılan tonal harmoni.',
-    likedIds: [1, 3]
+    likedIds: []
   };
 
   // 3D Panoramik Karusel Fizik Değişkenleri (Birebir PanoramicGalleryShowcase.tsx)
@@ -182,8 +182,7 @@ window.NevaApp = (function () {
 
     if (heroSection) {
       heroSection.addEventListener('keydown', (e) => {
-        const count = state.artworks.length || 1;
-        const angleStep = 360 / count;
+        const angleStep = 26;
         if (e.key === 'ArrowLeft') {
           carousel.velocity = 0;
           carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep + angleStep;
@@ -226,11 +225,12 @@ window.NevaApp = (function () {
     const count = cards.length;
     if (!count) return;
 
-    const angleStep = 360 / count;
+    // Sabit 26° aralık: Ekranda maksimum 6-7 kart görünür, tüm eserler sırayla döner
+    const angleStep = 26;
     const { rx } = carousel.radii;
 
-    const normalized = ((-angle % 360) + 360) % 360;
-    const newActive = Math.round(normalized / angleStep) % count;
+    const pos = -angle / angleStep;
+    const newActive = ((Math.round(pos) % count) + count) % count;
 
     if (newActive !== carousel.activeIndex) {
       carousel.activeIndex = newActive;
@@ -238,9 +238,19 @@ window.NevaApp = (function () {
     }
 
     cards.forEach((el, i) => {
-      let relAngle = ((angle + i * angleStep) % 360 + 360) % 360;
-      if (relAngle > 180) relAngle -= 360;
+      let diff = ((i - pos) % count + count) % count;
+      if (diff > count / 2) diff -= count;
 
+      if (Math.abs(diff) > 3.25) {
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+        el.style.visibility = 'hidden';
+        el.style.zIndex = '0';
+        return;
+      }
+
+      el.style.visibility = 'visible';
+      const relAngle = diff * angleStep;
       const rad = (relAngle * Math.PI) / 180;
       const cosVal = Math.cos(rad);
       const sinVal = Math.sin(rad);
@@ -248,8 +258,8 @@ window.NevaApp = (function () {
       if (cosVal < 0.05) {
         el.style.opacity = '0';
         el.style.pointerEvents = 'none';
+        el.style.visibility = 'hidden';
         el.style.zIndex = '0';
-        el.style.transform = 'translate3d(0, 500px, 0) scale(0.5)';
         return;
       }
 
@@ -304,23 +314,21 @@ window.NevaApp = (function () {
 
   function carouselPrev(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    const count = Math.max(1, state.artworks.length);
-    const angleStep = 360 / count;
+    const angleStep = 26;
     carousel.velocity = 0;
     carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep + angleStep;
   }
 
   function carouselNext(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    const count = Math.max(1, state.artworks.length);
-    const angleStep = 360 / count;
+    const angleStep = 26;
     carousel.velocity = 0;
     carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep - angleStep;
   }
 
   function rotateToCard(index) {
     const count = Math.max(1, state.artworks.length);
-    const angleStep = 360 / count;
+    const angleStep = 26;
     carousel.velocity = 0;
     let diff = index - carousel.activeIndex;
     if (diff > count / 2) diff -= count;
@@ -472,17 +480,30 @@ window.NevaApp = (function () {
       imgEl.alt = art.title;
     }
 
-    // Sesli Rehber Kutusu
+    // Resmi Müze, Wikipedia ve Google Arts & Culture Araştırma Linkleri
+    const museumLink = document.getElementById('detail-museum-link');
+    if (museumLink) {
+      museumLink.href = art.exhibitionLocation.city === 'Cleveland'
+        ? `https://www.clevelandart.org/art/${encodeURIComponent(art.accessionNumber)}`
+        : `https://www.metmuseum.org/art/collection/search?q=${encodeURIComponent(art.accessionNumber)}`;
+    }
+    const wikiLink = document.getElementById('detail-wiki-link');
+    if (wikiLink) {
+      const langSub = state.lang === 'tr' ? 'tr' : 'en';
+      wikiLink.href = `https://${langSub}.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(`${art.artist} ${art.title}`)}`;
+    }
+    const gacLink = document.getElementById('detail-gac-link');
+    if (gacLink) {
+      gacLink.href = `https://artsandculture.google.com/search?q=${encodeURIComponent(`${art.artist} ${art.title}`)}`;
+    }
+
+    // Gerçek Sesli Eser Anlatımı Kutusu
     const audioBox = document.getElementById('detail-audio-box');
     if (audioBox) {
-      if (art.audioGuide) {
-        audioBox.classList.remove('hidden');
-        setText('detail-audio-duration', `Küratör Sesli Rehberi (${art.audioGuide.duration})`);
-        setText('detail-audio-narrator', art.audioGuide.narrator);
-        setText('detail-audio-summary', `"${art.audioGuide.summary}"`);
-      } else {
-        audioBox.classList.add('hidden');
-      }
+      audioBox.classList.remove('hidden');
+      setText('detail-audio-duration', state.lang === 'tr' ? 'Gerçek Sesli Eser Anlatımı (Canlı Ses)' : 'Live Spoken Artwork Audio Guide');
+      setText('detail-audio-narrator', `${art.title} · ${art.artist}`);
+      setText('detail-audio-summary', `"${(state.lang === 'tr' ? art.storyTr : art.storyEn).slice(0, 140)}..."`);
     }
 
     // Yapay Zeka Renk Paleti & Armoni Analizi
@@ -682,21 +703,32 @@ window.NevaApp = (function () {
     const progEl = document.getElementById('detail-audio-progress');
 
     if (state.isPlayingAudio) {
-      if (statusEl) statusEl.textContent = 'Oynatılıyor...';
+      const art = state.selectedArtwork;
+      if (art && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const text = state.lang === 'tr'
+          ? `${art.title}. Sanatçı: ${art.artist}, ${art.year}. ${art.storyTr}`
+          : `${art.title}, by ${art.artist}, ${art.year}. ${art.storyEn}`;
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = state.lang === 'tr' ? 'tr-TR' : 'en-US';
+        utter.rate = 0.95;
+        utter.onend = () => stopAudioGuide();
+        window.speechSynthesis.speak(utter);
+      }
+      if (statusEl) statusEl.textContent = state.lang === 'tr' ? '🔊 Sesli Okunuyor...' : '🔊 Speaking...';
       state.audioTimer = setInterval(() => {
-        state.audioProgress += 1;
-        if (state.audioProgress >= 100) {
-          stopAudioGuide();
-        } else if (progEl) {
-          progEl.style.width = `${state.audioProgress}%`;
-        }
-      }, 250);
+        state.audioProgress = Math.min(95, state.audioProgress + 2);
+        if (progEl) progEl.style.width = `${state.audioProgress}%`;
+      }, 400);
     } else {
       stopAudioGuide();
     }
   }
 
   function stopAudioGuide() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     state.isPlayingAudio = false;
     state.audioProgress = 0;
     if (state.audioTimer) clearInterval(state.audioTimer);
@@ -875,7 +907,7 @@ window.NevaApp = (function () {
         medium: 'Leica I (Model A), 50mm Elmar f/3.5, 35mm Gümüş Jelatin Baskı',
         story: 'Su birikintisinin üzerinden atlayan bir adamın havada asılı kaldığı "Karar Anı" (The Decisive Moment). Arkadaki sirk afişindeki dansçı silüeti ile figürün mükemmel geometrik rezonansı.',
         technical: 'Leica I 50mm f/3.5 lens, 1/50 sn enstantane, f/5.6 diyafram, doğal difüze gün ışığı.',
-        url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80'
+        url: 'assets/artworks/museum-2.jpg'
       },
       mucha: {
         title: 'The Seasons: Autumn (Mevsimler: Sonbahar)',
@@ -885,7 +917,7 @@ window.NevaApp = (function () {
         medium: 'Art Nouveau Taşbaskı (Litoloji), Sıcak Altın & Toprak Mineral Mürekkepleri',
         story: 'Sonbahar hasadının bereketini ve doğanın döngüsel zarafetini temsil eden Art Nouveau allegorik kompozisyonu. Organik saç kıvrımları ve asma yaprakları.',
         technical: 'Champenois matbaasında 8 ayrı taş bloktan katmanlı litografik renk basımı.',
-        url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80'
+        url: 'assets/artworks/museum-11.jpg'
       },
       beeple: {
         title: 'Everydays: The First 5000 Days (Monument 01)',
@@ -895,7 +927,7 @@ window.NevaApp = (function () {
         medium: 'Cinema 4D, Octane Render, 3D Voxel Heykel & Akrilik Pleksi Arşiv Baskısı',
         story: '13 yılı aşkın süre boyunca kesintisiz her gün üretilen dijital sanat eserlerinin distopik ve hicivsel bir sentezi.',
         technical: 'Nvidia RTX GPU kümesi, Cinema 4D fiziksel kamera, uncompressed TIFF.',
-        url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80'
+        url: 'assets/artworks/museum-14.jpg'
       }
     };
 

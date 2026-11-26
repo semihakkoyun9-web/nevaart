@@ -8,6 +8,9 @@
 $totalArtworksCount = count($artworks);
 $uniqueArtists = array_unique(array_map(fn($a) => trim($a['artist']), $artworks));
 $uniqueArtistsCount = count($uniqueArtists);
+$totalQuotesCount = isset($artQuotes) && is_array($artQuotes) ? count($artQuotes) : 30;
+$totalVenuesCount = isset($venues) && is_array($venues) ? count($venues) : 12;
+$uniqueVenueCountriesCount = count(array_unique(array_filter(array_map(fn($v) => $v['country'] ?? '', $venues ?? []))));
 $totalViews = array_sum(array_map(fn($a) => (int)($a['views'] ?? 0), $artworks));
 $curatorPicksCount = count(array_filter($artworks, fn($a) => !empty($a['isCuratorPick'])));
 
@@ -74,11 +77,11 @@ $chartColors = ['#1C3144', '#777572', '#C59B67', '#0B2545', '#8C8A85'];
     </p>
   </div>
 
-  <!-- 4 Telemetry Metrics Cards -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+  <!-- 6 Telemetry Metrics Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
     <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
       <div class="flex items-center justify-between text-stone-400 mb-2">
-        <span class="text-xs uppercase font-mono tracking-wider text-stone-500">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
           <?= e($t['totalArtworks']) ?>
         </span>
         <?= icon('layers', 'w-4 h-4 text-stone-500') ?>
@@ -93,7 +96,7 @@ $chartColors = ['#1C3144', '#777572', '#C59B67', '#0B2545', '#8C8A85'];
 
     <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
       <div class="flex items-center justify-between text-stone-400 mb-2">
-        <span class="text-xs uppercase font-mono tracking-wider text-stone-500">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
           <?= e($t['totalArtists']) ?>
         </span>
         <?= icon('award', 'w-4 h-4 text-stone-500') ?>
@@ -108,7 +111,37 @@ $chartColors = ['#1C3144', '#777572', '#C59B67', '#0B2545', '#8C8A85'];
 
     <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
       <div class="flex items-center justify-between text-stone-400 mb-2">
-        <span class="text-xs uppercase font-mono tracking-wider text-stone-500">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
+          <?= $currentLang === 'tr' ? 'Sanat Sözleri' : 'Art Quotes' ?>
+        </span>
+        <?= icon('quote', 'w-4 h-4 text-[#9A7137]') ?>
+      </div>
+      <div id="metric-total-quotes" class="text-3xl font-serif font-semibold text-stone-900 tabular-nums">
+        <?= (int)$totalQuotesCount ?>
+      </div>
+      <span class="text-[11px] text-stone-400 font-mono mt-1 block">
+        <?= $currentLang === 'tr' ? 'Tarihçi & Usta Alıntısı' : 'Verified Master Quotes' ?>
+      </span>
+    </div>
+
+    <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
+      <div class="flex items-center justify-between text-stone-400 mb-2">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
+          <?= $currentLang === 'tr' ? 'Müze & Harita' : 'Museum Map' ?>
+        </span>
+        <?= icon('map-pin', 'w-4 h-4 text-[#9A7137]') ?>
+      </div>
+      <div id="metric-total-venues" class="text-3xl font-serif font-semibold text-stone-900 tabular-nums">
+        <?= (int)$totalVenuesCount ?>
+      </div>
+      <span class="text-[11px] text-stone-400 font-mono mt-1 block">
+        <?= (int)$uniqueVenueCountriesCount ?> <?= $currentLang === 'tr' ? 'Ülkeden Müze' : 'Countries Mapped' ?>
+      </span>
+    </div>
+
+    <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
+      <div class="flex items-center justify-between text-stone-400 mb-2">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
           <?= e($t['totalViews']) ?>
         </span>
         <?= icon('eye', 'w-4 h-4 text-stone-500') ?>
@@ -123,7 +156,7 @@ $chartColors = ['#1C3144', '#777572', '#C59B67', '#0B2545', '#8C8A85'];
 
     <div class="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
       <div class="flex items-center justify-between text-stone-400 mb-2">
-        <span class="text-xs uppercase font-mono tracking-wider text-stone-500">
+        <span class="text-[11px] uppercase font-mono tracking-wider text-stone-500">
           <?= $currentLang === 'tr' ? 'Küratör Seçkisi' : 'Curator Picks' ?>
         </span>
         <?= icon('palette', 'w-4 h-4 text-stone-500') ?>
@@ -247,8 +280,8 @@ $chartColors = ['#1C3144', '#777572', '#C59B67', '#0B2545', '#8C8A85'];
         </h4>
         <p class="text-stone-600 leading-relaxed font-sans">
           <?= $currentLang === 'tr'
-            ? "NEVAART arşivinde yer alan {$totalArtworksCount} eserin %{$topCategory['percentage']}’i {$topCategory['name']} disiplininde yer alırken; onu %{$secondCategory['percentage']} ile {$secondCategory['name']} alanı izlemektedir."
-            : "Across the {$totalArtworksCount} cataloged works in the NEVAART archive, {$topCategory['percentage']}% belong to {$topCategory['name']}, closely accompanied by {$secondCategory['name']} at {$secondCategory['percentage']}%." ?>
+            ? "NEVAART arşivinde yer alan {$totalArtworksCount} eserin %{$topCategory['percentage']}’i {$topCategory['name']} disiplininde yer alırken; onu %{$secondCategory['percentage']} ile {$secondCategory['name']} alanı izlemektedir. Arşiv ayrıca {$totalQuotesCount} doğrulanmış sanat sözü ve {$uniqueVenueCountriesCount} ülkeden {$totalVenuesCount} haritalı müzeyi kapsamaktadır."
+            : "Across the {$totalArtworksCount} cataloged works in the NEVAART archive, {$topCategory['percentage']}% belong to {$topCategory['name']}, closely accompanied by {$secondCategory['name']} at {$secondCategory['percentage']}%. The archive also curates {$totalQuotesCount} verified art quotes and {$totalVenuesCount} mapped museums across {$uniqueVenueCountriesCount} countries." ?>
         </p>
         <p class="text-stone-600 leading-relaxed font-sans">
           <?= $currentLang === 'tr'

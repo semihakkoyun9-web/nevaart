@@ -36,16 +36,16 @@ if (!in_array($currentLang, ['tr', 'en'], true)) {
     $currentLang = 'tr';
 }
 
-// Varsayılan aktif kullanıcı oturumu (Kriter I & J - RBAC Rol Bazlı Yetkilendirme)
+// Varsayılan aktif kullanıcı oturumu (Sadece semihakkoyun9@gmail.com Baş Küratör yetkisine sahiptir)
 if (!isset($_SESSION['user']) || !is_array($_SESSION['user'])) {
-    $defaultPasswordHash = password_hash('NevaArt2026!Curator', PASSWORD_BCRYPT);
+    $defaultPasswordHash = password_hash('Semih2026!', PASSWORD_BCRYPT);
     $_SESSION['user'] = [
         'id' => 1,
-        'name' => 'Prof. Dr. Halil Erdem',
-        'email' => 'halil@nevaart.org',
-        'role' => 'curator', // 'visitor' | 'member' | 'curator'
-        'bio' => 'Baş Küratör & Sanat Tarihçisi, Viyana ve İstanbul Güzel Sanatlar Danışmanı.',
-        'joinedDate' => '2024-01-10',
+        'name' => 'Semih Akkoyun',
+        'email' => 'semihakkoyun9@gmail.com',
+        'role' => 'curator',
+        'bio' => 'NevaArt Kurucu Baş Küratörü.',
+        'joinedDate' => '2026-01-01',
         'passwordHash' => $defaultPasswordHash
     ];
     if (!headers_sent()) {

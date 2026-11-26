@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Artwork, ArtworkCategory } from '../types';
 import { translations } from '../data/i18n';
+import { COLOR_FAMILIES as SHARED_COLOR_FAMILIES, computeArtworkColorDensity } from '../utils/colorSearch';
 import { Search, Heart, ArrowUpRight, Palette, Award, BookOpen } from 'lucide-react';
 
 interface ArtworkGridProps {
@@ -12,6 +13,9 @@ interface ArtworkGridProps {
   likedIds?: number[];
   showOnlyFavorites?: boolean;
   onResetFavoriteFilter?: () => void;
+  onLoadMoreFromMuseum?: (searchTerm?: string) => void;
+  isLoadingMoreMuseum?: boolean;
+  hideHeader?: boolean;
 }
 
 export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
@@ -23,6 +27,9 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
   likedIds = [],
   showOnlyFavorites = false,
   onResetFavoriteFilter,
+  onLoadMoreFromMuseum,
+  isLoadingMoreMuseum = false,
+  hideHeader = false,
 }) => {
   const t = translations[currentLang];
   const [selectedCategory, setSelectedCategory] = useState<string>(showOnlyFavorites ? 'favorites' : 'all');
@@ -36,129 +43,118 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
   }, [showOnlyFavorites]);
 
   const categoryLabels: Record<string, { tr: string; en: string }> = {
-    digital: { tr: 'DİJİTAL SANAT', en: 'DIGITAL ART' },
-    street: { tr: 'SOKAK FOTOĞRAFI', en: 'STREET PHOTO' },
-    illustration: { tr: 'İLLÜSTRASYON', en: 'ILLUSTRATION' },
-    architecture: { tr: 'MİMARİ', en: 'ARCHITECTURE' },
-    concept: { tr: 'KONSEPT TASARIM', en: 'CONCEPT DESIGN' },
+    digital: { tr: 'RENK TEORİSİ', en: 'COLOR THEORY' },
+    street: { tr: 'PORTRE & YAŞAM', en: 'PORTRAIT & LIFE' },
+    illustration: { tr: 'EMPRESYONİZM & UKİYO-E', en: 'IMPRESSIONISM & UKIYO-E' },
+    architecture: { tr: 'PEYZAJ & MEKÂN', en: 'LANDSCAPE & SPACE' },
+    concept: { tr: 'TARİH & MİTOLOJİ', en: 'HISTORY & MYTHOLOGY' },
   };
 
-  const COLOR_FAMILIES = [
-    { id: 'all', name: currentLang === 'tr' ? 'Tüm Spektrum' : 'All Spectrum', dot: '#D6CEBE' },
-    { id: 'blue', name: currentLang === 'tr' ? 'Prusya & Lapis' : 'Prussian & Lapis', dot: '#183661' },
-    { id: 'mono', name: currentLang === 'tr' ? 'Monokrom Noir' : 'Monochrome Noir', dot: '#0D0D0D' },
-    { id: 'red', name: currentLang === 'tr' ? 'Vermilion & Oksit' : 'Vermilion & Oxide', dot: '#9E2A2B' },
-    { id: 'alabaster', name: currentLang === 'tr' ? 'Alabaster & Beton' : 'Alabaster & Concrete', dot: '#858380' },
-  ];
+  const COLOR_FAMILIES = SHARED_COLOR_FAMILIES.map((cf) => ({
+    id: cf.id,
+    name: currentLang === 'tr' ? cf.nameTr : cf.nameEn,
+    dot: cf.dot,
+  }));
 
   const filteredArtworks = useMemo(() => {
-    return artworks.filter((art) => {
-      let matchesCategory = false;
-      if (selectedCategory === 'favorites') {
-        matchesCategory = likedIds.includes(art.id);
-      } else if (selectedCategory === 'all') {
-        matchesCategory = true;
-      } else {
-        matchesCategory = art.category === selectedCategory;
-      }
+    const q = searchQuery.toLowerCase().trim();
+    const matched = artworks
+      .map((art) => ({
+        art,
+        density: computeArtworkColorDensity(art, selectedColorFamily),
+      }))
+      .filter(({ art, density }) => {
+        let matchesCategory = false;
+        if (selectedCategory === 'favorites') {
+          matchesCategory = likedIds.includes(art.id);
+        } else if (selectedCategory === 'all') {
+          matchesCategory = true;
+        } else {
+          matchesCategory = art.category === selectedCategory;
+        }
 
-      let matchesColor = true;
-      if (selectedColorFamily === 'blue') {
-        matchesColor = art.colorPalette.some(c => ['#183661', '#284878', '#5D8AA8', '#1B3B6F'].includes(c.hex));
-      } else if (selectedColorFamily === 'mono') {
-        matchesColor = art.colorPalette.some(c => ['#0D0D0D', '#0A0A0A', '#121212', '#2F2E2D'].includes(c.hex));
-      } else if (selectedColorFamily === 'red') {
-        matchesColor = art.colorPalette.some(c => ['#9E2A2B', '#C87D55', '#D00000', '#540B0E'].includes(c.hex));
-      } else if (selectedColorFamily === 'alabaster') {
-        matchesColor = art.colorPalette.some(c => ['#F5F3EF', '#F7F4EE', '#858380', '#AFAEA9'].includes(c.hex));
-      }
+        const matchesColor = selectedColorFamily === 'all' || density >= 8;
 
-      const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
-        !q ||
-        art.title.toLowerCase().includes(q) ||
-        art.artist.toLowerCase().includes(q) ||
-        art.accessionNumber.toLowerCase().includes(q) ||
-        art.mediumTr.toLowerCase().includes(q) ||
-        art.mediumEn.toLowerCase().includes(q) ||
-        art.tags.some((tag) => tag.toLowerCase().includes(q));
+        const matchesSearch =
+          !q ||
+          art.title.toLowerCase().includes(q) ||
+          art.artist.toLowerCase().includes(q) ||
+          art.accessionNumber.toLowerCase().includes(q) ||
+          art.mediumTr.toLowerCase().includes(q) ||
+          art.mediumEn.toLowerCase().includes(q) ||
+          art.tags.some((tag) => tag.toLowerCase().includes(q));
 
-      return matchesCategory && matchesColor && matchesSearch;
-    });
-  }, [artworks, selectedCategory, selectedColorFamily, searchQuery]);
+        return matchesCategory && matchesColor && matchesSearch;
+      });
+
+    if (selectedColorFamily !== 'all') {
+      matched.sort((a, b) => b.density - a.density);
+    }
+    return matched.map((m) => m.art);
+  }, [artworks, selectedCategory, selectedColorFamily, searchQuery, likedIds]);
 
   return (
-    <section id="katalog" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="katalog" className={hideHeader ? '' : 'py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto'}>
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 pb-6 border-b border-stone-200">
-        <div>
-          <div className="inline-flex items-center gap-2 mb-2">
-            <span className="w-5 h-px bg-stone-400" />
-            <span className="text-[11px] uppercase tracking-[0.25em] text-stone-500 font-mono font-semibold">
-              {currentLang === 'tr' ? 'YENİ — KOLEKSİYON' : 'NEW — ARTWORKS'}
-            </span>
+      {!hideHeader && (
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-stone-200">
+          <div>
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="w-5 h-px bg-stone-400" />
+              <span className="text-[11px] uppercase tracking-[0.25em] text-stone-500 font-mono font-semibold">
+                {currentLang === 'tr' ? 'YENİ — KOLEKSİYON' : 'NEW — ARTWORKS'}
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-black tracking-tight leading-tight">
+              {currentLang === 'tr' ? (
+                <>
+                  ÇAĞDAŞ SANATÇILAR <br />
+                  <span className="font-light text-stone-700">MODERN GALERİ</span>
+                </>
+              ) : (
+                <>
+                  DRAMATIC ARTIST <br />
+                  <span className="font-light text-stone-700">MODERN GALLERY</span>
+                </>
+              )}
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-xl">
+              {currentLang === 'tr'
+                ? 'Küratör onaylı başyapıtlar, bağımsız sanatçı çizimleri ve derin renk teorisi analitiği.'
+                : 'Curator-approved masterpieces, independent artist submissions, and deep chromatic spectrum analytics.'}
+            </p>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-black tracking-tight leading-tight">
-            {currentLang === 'tr' ? (
-              <>
-                ÇAĞDAŞ SANATÇILAR <br />
-                <span className="font-light text-stone-700">MODERN GALERİ</span>
-              </>
-            ) : (
-              <>
-                DRAMATIC ARTIST <br />
-                <span className="font-light text-stone-700">MODERN GALLERY</span>
-              </>
-            )}
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-500 mt-2 max-w-xl">
-            {currentLang === 'tr'
-              ? 'Küratör onaylı başyapıtlar, bağımsız sanatçı çizimleri ve derin renk teorisi analitiği.'
-              : 'Curator-approved masterpieces, independent artist submissions, and deep chromatic spectrum analytics.'}
-          </p>
-        </div>
 
-        <div className="text-xs text-stone-500 font-mono self-start md:self-auto">
-          <span className="text-black font-bold text-sm">{filteredArtworks.length}</span> {currentLang === 'tr' ? 'eser sergileniyor' : 'artworks displayed'}
+          <div className="text-xs text-stone-500 font-mono self-start md:self-auto">
+            <span className="text-black font-bold text-sm">{filteredArtworks.length}</span> {currentLang === 'tr' ? 'eser sergileniyor' : 'artworks displayed'}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Filter Tabs & Search Controls */}
+      {/* Clean Individual Category Pills (NO broken rounded-full outer box & NO duplicate Favorites tab!) */}
       <div className="space-y-4 mb-10">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-stone-100/90 rounded-full border border-stone-200/80">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => {
                 setSelectedCategory('all');
                 onResetFavoriteFilter?.();
               }}
-              className={`px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap ${selectedCategory === 'all'
-                  ? 'bg-black text-white shadow-xs font-semibold'
-                  : 'text-stone-700 hover:text-black hover:bg-stone-200/60'
+              className={`px-4 py-2 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border ${selectedCategory === 'all'
+                ? 'bg-black text-white border-black shadow-xs font-semibold'
+                : 'bg-white text-stone-700 border-stone-200 hover:border-black hover:text-black'
                 }`}
             >
               {t.allCategories}
             </button>
 
-            {/* Dedicated Favorites Tab */}
-            <button
-              onClick={() => setSelectedCategory('favorites')}
-              className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${selectedCategory === 'favorites'
-                  ? 'bg-red-600 text-white shadow-xs font-semibold'
-                  : 'text-stone-700 hover:text-red-600 hover:bg-stone-200/60'
-                }`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${selectedCategory === 'favorites' ? 'fill-white text-white' : (likedIds.length > 0 ? 'fill-red-500 text-red-500' : 'text-stone-400')}`} />
-              <span>{currentLang === 'tr' ? `Beğendiklerim (${likedIds.length})` : `Favorites (${likedIds.length})`}</span>
-            </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap ${selectedCategory === cat.id
-                    ? 'bg-black text-white shadow-xs font-semibold'
-                    : 'text-stone-700 hover:text-black hover:bg-stone-200/60'
+                className={`px-4 py-2 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border ${selectedCategory === cat.id
+                  ? 'bg-black text-white border-black shadow-xs font-semibold'
+                  : 'bg-white text-stone-700 border-stone-200 hover:border-black hover:text-black'
                   }`}
               >
                 {currentLang === 'tr' ? cat.nameTr : cat.nameEn}
@@ -198,8 +194,8 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
               key={cf.id}
               onClick={() => setSelectedColorFamily(cf.id)}
               className={`px-3 py-1 rounded-full text-[11px] flex items-center gap-1.5 border transition-all cursor-pointer ${selectedColorFamily === cf.id
-                  ? 'bg-black border-black text-white font-semibold shadow-xs'
-                  : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
+                ? 'bg-black border-black text-white font-semibold shadow-xs'
+                : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400'
                 }`}
             >
               <span
@@ -270,8 +266,8 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
                       onLikeArtwork(art.id);
                     }}
                     className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-xs cursor-pointer ${likedIds.includes(art.id)
-                        ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 scale-105'
-                        : 'bg-white/90 hover:bg-white text-stone-700 hover:text-red-600'
+                      ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 scale-105'
+                      : 'bg-white/90 hover:bg-white text-stone-700 hover:text-red-600'
                       }`}
                     title={likedIds.includes(art.id) ? (currentLang === 'tr' ? 'Beğeniden Çıkar' : 'Unlike') : (currentLang === 'tr' ? 'Beğen' : 'Like')}
                   >
@@ -342,6 +338,33 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
               </article>
             );
           })}
+        </div>
+      )}
+
+      {/* Canlı Müze API'sinden Sınırsız Eser Çekme Çubuğu */}
+      {onLoadMoreFromMuseum && selectedCategory !== 'favorites' && (
+        <div className="mt-12 text-center flex flex-col items-center gap-3">
+          <button
+            type="button"
+            disabled={isLoadingMoreMuseum}
+            onClick={() => onLoadMoreFromMuseum(searchQuery)}
+            className="px-7 py-3 bg-black hover:bg-stone-800 disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider rounded-full transition-all cursor-pointer shadow-md hover:shadow-lg flex items-center gap-2"
+          >
+            <span>
+              {isLoadingMoreMuseum
+                ? (currentLang === 'tr' ? 'Müze Arşivinden Çekiliyor...' : 'Fetching from Museum Archive...')
+                : (currentLang === 'tr'
+                    ? (searchQuery.trim()
+                        ? `🏛️ "${searchQuery}" İçin Müze API'sinden Gerçek Eser Çek`
+                        : '🏛️ Canlı Müze API\'sinden +20 Gerçek Eser Daha Çek')
+                    : '🏛️ Load +20 More Real Artworks from Museum API')}
+            </span>
+          </button>
+          <p className="text-[11px] text-stone-400 font-mono">
+            {currentLang === 'tr'
+              ? `Şu an ${artworks.length} gerçek eser yüklü · The Met & Cleveland Museum of Art (37.000+ CC0 Açık Erişim Arşivi)`
+              : `Currently ${artworks.length} real artworks loaded · The Met & Cleveland Museum of Art Open Access`}
+          </p>
         </div>
       )}
     </section>

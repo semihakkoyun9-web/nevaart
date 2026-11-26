@@ -10,7 +10,7 @@
     <div class="pb-14 border-b border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
       <div class="max-w-xl">
         <span class="text-[10px] uppercase tracking-[0.25em] text-amber-400 font-mono font-semibold block mb-1">
-          <?= $currentLang === 'tr' ? 'SERGİ VE SANATcookieI DUYURULARI' : 'GALLERY & ARTIST UPDATES' ?>
+          <?= $currentLang === 'tr' ? 'SERGİ VE SANATÇI DUYURULARI' : 'GALLERY & ARTIST UPDATES' ?>
         </span>
         <h3 class="text-xl sm:text-2xl font-display font-extrabold uppercase text-white tracking-tight">
           <?= $currentLang === 'tr' ? 'YENİ ESERLERDEN VE SERGİLERDEN HABERDAR OLUN' : 'STAY UPDATED ON NEW EXHIBITIONS & EMERGING TALENTS' ?>
@@ -50,9 +50,19 @@
       
       <!-- Column 1: Brand & Manifesto -->
       <div>
-        <span class="font-serif italic text-2xl font-bold tracking-tight text-white block mb-1">
-          NevaArt
-        </span>
+        <div class="flex items-center gap-2.5 mb-2">
+          <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 shrink-0" aria-hidden="true">
+            <rect x="1" y="1" width="42" height="42" rx="4" fill="#1A1A1D" stroke="#C59B5F" stroke-width="1.2" stroke-opacity="0.65"/>
+            <rect x="5" y="5" width="34" height="34" rx="2" stroke="#C59B5F" stroke-width="0.75" stroke-opacity="0.45"/>
+            <path d="M11 33V20C11 13.9249 15.9249 9 22 9C28.0751 9 33 13.9249 33 20V33" stroke="#C59B5F" stroke-width="1" stroke-opacity="0.55"/>
+            <path d="M15.5 31V15.5L28.5 31V15.5" stroke="#FAF8F5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15.5 16.5C19.5 20.5 24.5 26.5 28.5 30" stroke="#C59B5F" stroke-width="2.3" stroke-linecap="round"/>
+            <circle cx="22" cy="13.5" r="1.4" fill="#C59B5F"/>
+          </svg>
+          <span class="font-serif text-2xl font-semibold tracking-[0.1em] text-white uppercase leading-none">
+            NevaArt
+          </span>
+        </div>
         <span class="text-[9px] uppercase tracking-[0.25em] font-mono text-stone-500 font-semibold block mb-4">
           <?= $currentLang === 'tr' ? 'Açık Galeri & Sanat Ansiklopedisi' : 'Open Gallery & Art Encyclopedia' ?>
         </span>
@@ -154,7 +164,7 @@
       </div>
 
       <div class="flex items-center gap-2 text-stone-400 font-mono text-[11px]">
-        <?= icon('sparkles', 'w-3.5 h-3.5 text-amber-500') ?>
+        <?= icon('landmark', 'w-3.5 h-3.5 text-amber-500') ?>
         <span><?= $currentLang === 'tr' ? 'Sanatçılar ve Sanatseverler İçin Bağımsız Sergi Alanı' : 'Independent Exhibition Space for Creators' ?></span>
       </div>
     </div>

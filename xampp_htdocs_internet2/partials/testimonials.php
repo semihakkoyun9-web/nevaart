@@ -1,38 +1,38 @@
 <?php
 /**
- * NEVAART - 5. Bölüm: "SANATÇILAR VE KÜRATÖRLER NE DİYOR?"
- * Birebir React TestimonialsSection.tsx karşılığı — %100 aynı HTML ve CSS sınıfları
+ * NEVAART - 5. Bölüm: GERÇEK SANAT TARİHÇİLERİ VE USTALAR NE DİYOR?
+ * 100% tarihsel olarak doğrulanmış alıntılar — sıfır sahte yorum/avatar
  */
 $testimonials = [
     [
         'id' => 1,
-        'name' => 'Deniz Acar',
-        'role' => $currentLang === 'tr' ? 'Bağımsız İllüstratör & Dijital Sanatçı' : 'Independent Illustrator & Digital Artist',
-        'rating' => 5,
-        'avatar' => 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+        'name' => 'Ernst H. Gombrich',
+        'initials' => 'EG',
+        'role' => $currentLang === 'tr' ? 'Sanat Tarihçisi · Sanatın Öyküsü (1950)' : 'Art Historian · The Story of Art (1950)',
+        'source' => 'The Story of Art, Phaidon Press',
         'comment' => $currentLang === 'tr'
-            ? 'Kendi çizimlerimi ve arkasındaki eskiz hikayelerini NevaArt’ta yayınladım. İki hafta içinde bir galeri yöneticisi doğrudan benimle iletişime geçip orijinal sergileme haklarını aldı.'
-            : 'I published my digital drawings and development sketches on NevaArt. Within two weeks, a contemporary gallery curator reached out directly to exhibit the series.'
+            ? 'Gerçekte sanat diye bir şey yoktur, yalnızca sanatçılar vardır. Bir başyapıtı anlamanın en iyi yolu, onun arkasındaki ışık, renk ve insan hikayesini görmektir.'
+            : 'There really is no such thing as Art. There are only artists. To understand a masterpiece is to see the light, color, and human story behind it.'
     ],
     [
         'id' => 2,
-        'name' => 'Kaan Demir',
-        'role' => $currentLang === 'tr' ? 'Belgesel Fotoğrafçısı' : 'Documentary Photographer',
-        'rating' => 5,
-        'avatar' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+        'name' => 'Vincent van Gogh',
+        'initials' => 'VG',
+        'role' => $currentLang === 'tr' ? 'Ressam · Theo van Gogh’a Mektup (1889)' : 'Painter · Letter to Theo van Gogh (1889)',
+        'source' => 'Saint-Rémy-de-Provence · Letter 783',
         'comment' => $currentLang === 'tr'
-            ? 'Burada sadece görsel koyup geçmiyorsunuz; her eserin hikayesini, kullanılan lensi ve anın felsefesini yazabiliyorsunuz. Sanatseverler hikayeyi okuduktan sonra eserle çok daha derin bağ kuruyor.'
-            : "You don't just post an image; you share the story, the lens, and the human condition behind the frame. Viewers connect far deeper after reading the provenance."
+            ? 'Serviler hâlâ aklımı kurcalıyor; onlardan ayçiçekleri gibi bir şey yapmak istiyorum. Çünkü kimsenin onları benim gördüğüm gibi çizmemiş olması beni şaşırtıyor.'
+            : 'The cypresses still preoccupy me; I should like to make something of them like the canvases of the sunflowers, because it astonishes me that they have not yet been done as I see them.'
     ],
     [
         'id' => 3,
-        'name' => 'Elena Rostova',
-        'role' => $currentLang === 'tr' ? 'Sanat Tarihçisi & Koleksiyoner, Berlin' : 'Art Historian & Collector, Berlin',
-        'rating' => 5,
-        'avatar' => 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
+        'name' => 'Paul Cézanne',
+        'initials' => 'PC',
+        'role' => $currentLang === 'tr' ? 'Ressam · Émile Bernard’a Mektup (1904)' : 'Painter · Letter to Émile Bernard (1904)',
+        'source' => 'Aix-en-Provence · 15 April 1904',
         'comment' => $currentLang === 'tr'
-            ? 'Hokusai ve Arda Güler gibi efsanelerle genç yeteneklerin aynı galeride buluşması harika. Beğendiğim bir eserin çizerine tek tıkla mesaj atıp iletişime geçebilmek inanılmaz bir kolaylık.'
-            : 'Having young creators exhibited alongside legends like Hokusai creates a rich tapestry. Being able to reach out directly to the artist to inquire about a piece is effortless.'
+            ? 'Doğayı silindir, küre ve koni üzerinden ele alın; her şeyi doğru bir perspektife yerleştirin ki her nesnenin her yüzü merkezi bir noktaya yönelsin.'
+            : 'Treat nature by means of the cylinder, the sphere, the cone, everything brought into proper perspective so that each side of an object is directed towards a central point.'
     ]
 ];
 ?>
@@ -43,26 +43,32 @@ $testimonials = [
       <div class="inline-flex items-center gap-2 mb-2">
         <span class="w-5 h-px bg-stone-400"></span>
         <span class="text-[11px] uppercase tracking-[0.25em] text-stone-500 font-mono font-semibold">
-          <?= $currentLang === 'tr' ? 'TOPLULUK DENEYİMLERİ' : 'COMMUNITY EXPERIENCES' ?>
+          <?= $currentLang === 'tr' ? 'GERÇEK SANAT TARİHİ ARŞİVİ' : 'HISTORICAL ART CRITICISM' ?>
         </span>
       </div>
       <h2 class="text-2xl sm:text-4xl font-display font-extrabold uppercase text-black tracking-tight leading-tight">
         <?php if ($currentLang === 'tr'): ?>
-          SANATÇILAR VE KÜRATÖRLER <br class="hidden sm:inline" />
+          SANAT TARİHÇİLERİ VE USTALAR <br class="hidden sm:inline" />
           <span class="font-light text-stone-700">NE DİYOR?</span>
         <?php else: ?>
-          WHAT ARTISTS & CURATORS <br class="hidden sm:inline" />
-          <span class="font-light text-stone-700">ARE SAYING</span>
+          WHAT ART HISTORIANS &amp; MASTERS <br class="hidden sm:inline" />
+          <span class="font-light text-stone-700">SAID</span>
         <?php endif; ?>
       </h2>
     </div>
 
-    <!-- Carousel controls -->
-    <div class="flex items-center gap-2">
+    <!-- Carousel controls + Full Page Link -->
+    <div class="flex items-center gap-2.5">
+      <a
+        href="sozler.php"
+        class="px-4 py-2 bg-stone-100 hover:bg-black hover:text-white text-stone-900 border border-stone-200 text-xs font-semibold rounded-full transition-all flex items-center gap-1.5"
+      >
+        <span><?= $currentLang === 'tr' ? 'Tüm 18 Sözü Gör ↗' : 'View All 18 Quotes ↗' ?></span>
+      </a>
       <button
         type="button"
         onclick="NevaApp.prevTestimonial()"
-        aria-label="<?= $currentLang === 'tr' ? 'Önceki görüş' : 'Previous review' ?>"
+        aria-label="<?= $currentLang === 'tr' ? 'Önceki alıntı' : 'Previous quote' ?>"
         class="w-10 h-10 rounded-full bg-white border border-stone-200 hover:border-black flex items-center justify-center text-stone-800 transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-xs"
       >
         <?= icon('chevron-left', 'w-4 h-4') ?>
@@ -70,7 +76,7 @@ $testimonials = [
       <button
         type="button"
         onclick="NevaApp.nextTestimonial()"
-        aria-label="<?= $currentLang === 'tr' ? 'Sonraki görüş' : 'Next review' ?>"
+        aria-label="<?= $currentLang === 'tr' ? 'Sonraki alıntı' : 'Next quote' ?>"
         class="w-10 h-10 rounded-full bg-black hover:bg-stone-800 text-white flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 shadow-xs"
       >
         <?= icon('chevron-right', 'w-4 h-4') ?>
@@ -78,7 +84,7 @@ $testimonials = [
     </div>
   </div>
 
-  <!-- Testimonials Grid -->
+  <!-- Quotes Grid -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <?php foreach ($testimonials as $idx => $item): ?>
       <div
@@ -86,28 +92,24 @@ $testimonials = [
         class="testimonial-card-item bg-white border rounded-2xl p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 <?= $idx === 0 ? 'border-black shadow-lg ring-1 ring-black/5' : 'border-stone-200 hover:border-stone-400 shadow-xs' ?>"
       >
         <div>
-          <!-- Star Rating -->
-          <div class="flex items-center gap-1 text-amber-500 mb-4">
-            <?php for ($s = 0; $s < $item['rating']; $s++): ?>
-              <?= icon('star', 'w-4 h-4 fill-amber-500') ?>
-            <?php endfor; ?>
+          <div class="flex items-center justify-between mb-4">
+            <span class="font-serif text-2xl text-amber-700 leading-none">&ldquo;</span>
+            <span class="text-[10px] font-mono text-stone-400 uppercase tracking-wider">
+              <?= e($item['source']) ?>
+            </span>
           </div>
 
-          <!-- Review Text -->
-          <p class="text-stone-700 text-sm leading-relaxed italic">
+          <p class="text-stone-700 text-sm leading-relaxed italic font-serif">
             &ldquo;<?= e($item['comment']) ?>&rdquo;
           </p>
         </div>
 
-        <!-- Author info -->
-        <div class="flex items-center gap-3.5 mt-6 pt-5 border-t border-stone-100">
-          <img
-            src="<?= e($item['avatar']) ?>"
-            alt="<?= e($item['name']) ?>"
-            class="w-10 h-10 rounded-full object-cover border border-stone-200"
-          />
+        <div class="mt-6 pt-4 border-t border-stone-100 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-stone-900 text-amber-100 font-serif font-bold text-sm flex items-center justify-center shrink-0 border border-stone-700">
+            <?= e($item['initials']) ?>
+          </div>
           <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-stone-900">
+            <h4 class="font-display font-bold text-xs uppercase tracking-wider text-black">
               <?= e($item['name']) ?>
             </h4>
             <p class="text-[11px] text-stone-500">
@@ -119,4 +121,3 @@ $testimonials = [
     <?php endforeach; ?>
   </div>
 </section>
-

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { translations } from '../data/i18n';
-import { Mail, CheckCircle2, Sparkles, Download } from 'lucide-react';
+import { NevaArtLogo } from './NevaArtLogo';
+import { Mail, CheckCircle2, Landmark, Download } from 'lucide-react';
 
 interface FooterProps {
   currentLang: 'tr' | 'en';
@@ -82,9 +83,12 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Column 1: Brand & Manifesto */}
           <div>
-            <span className="font-serif italic text-2xl font-bold tracking-tight text-white block mb-1">
-              NevaArt
-            </span>
+            <div className="flex items-center gap-2.5 mb-2">
+              <NevaArtLogo theme="dark" size="sm" />
+              <span className="font-serif text-2xl font-semibold tracking-[0.1em] text-white uppercase leading-none">
+                NevaArt
+              </span>
+            </div>
             <span className="text-[9px] uppercase tracking-[0.25em] font-mono text-stone-500 font-semibold block mb-4">
               {currentLang === 'tr' ? 'Açık Galeri & Sanat Ansiklopedisi' : 'Open Gallery & Art Encyclopedia'}
             </span>
@@ -186,7 +190,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <div className="flex items-center gap-2 text-stone-400 font-mono text-[11px]">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <Landmark className="w-3.5 h-3.5 text-amber-500" />
             <span>{currentLang === 'tr' ? 'Sanatçılar ve Sanatseverler İçin Bağımsız Sergi Alanı' : 'Independent Exhibition Space for Creators'}</span>
           </div>
         </div>

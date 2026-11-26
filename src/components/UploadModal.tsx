@@ -113,7 +113,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         medium: 'Leica I (Model A), 50mm Elmar f/3.5, 35mm Gümüş Jelatin Baskı',
         story: 'Su birikintisinin üzerinden atlayan bir adamın havada asılı kaldığı "Karar Anı" (The Decisive Moment). Arkadaki sirk afişindeki dansçı silüeti ile figürün mükemmel geometrik rezonansı.',
         technical: 'Leica I 50mm f/3.5 lens, 1/50 sn enstantane, f/5.6 diyafram, doğal difüze gün ışığı.',
-        url: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80'
+        url: '/artworks/museum-2.jpg'
       },
       mucha: {
         title: 'The Seasons: Autumn (Mevsimler: Sonbahar)',
@@ -123,7 +123,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         medium: 'Art Nouveau Taşbaskı (Litoloji), Sıcak Altın & Toprak Mineral Mürekkepleri',
         story: 'Sonbahar hasadının bereketini ve doğanın döngüsel zarafetini temsil eden Art Nouveau allegorik kompozisyonu. Organik saç kıvrımları ve asma yaprakları.',
         technical: 'Champenois matbaasında 8 ayrı taş bloktan katmanlı litografik renk basımı.',
-        url: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1200&q=80'
+        url: '/artworks/museum-11.jpg'
       },
       beeple: {
         title: 'Everydays: The First 5000 Days (Monument 01)',
@@ -133,7 +133,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({
         medium: 'Cinema 4D, Octane Render, 3D Voxel Heykel & Akrilik Pleksi Arşiv Baskısı',
         story: '13 yılı aşkın süre boyunca kesintisiz her gün üretilen dijital sanat eserlerinin distopik ve hicivsel bir sentezi.',
         technical: 'Nvidia RTX GPU kümesi, Cinema 4D fiziksel kamera, uncompressed TIFF.',
-        url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80'
+        url: '/artworks/museum-14.jpg'
       }
     };
 

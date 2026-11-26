@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { Artwork, ArtworkCategory } from '../types';
 import { translations } from '../data/i18n';
-import { BarChart3, PieChart, Layers, Eye, Palette, Award } from 'lucide-react';
+import { artQuotes } from '../data/artQuotes';
+import { EXHIBITION_VENUES } from '../data/exhibitionVenues';
+import { BarChart3, PieChart, Layers, Eye, Palette, Award, Quote, MapPin } from 'lucide-react';
 
 interface AnalyticsSectionProps {
   artworks: Artwork[];
@@ -22,6 +24,12 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
   const uniqueArtistsCount = useMemo(
     () => new Set(artworks.map((a) => a.artist.trim())).size,
     [artworks]
+  );
+  const totalQuotesCount = artQuotes.length;
+  const totalVenuesCount = EXHIBITION_VENUES.length;
+  const uniqueVenueCountriesCount = useMemo(
+    () => new Set(EXHIBITION_VENUES.map((v) => v.country)).size,
+    []
   );
   const totalViews = useMemo(
     () => artworks.reduce((acc, a) => acc + (a.views || 0), 0),
@@ -93,11 +101,11 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
         </p>
       </div>
 
-      {/* 4 Telemetry Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+      {/* 6 Telemetry Metrics Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
         <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs uppercase font-mono tracking-wider text-stone-500">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
               {t.totalArtworks}
             </span>
             <Layers className="w-4 h-4 text-stone-500" />
@@ -112,7 +120,7 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
 
         <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs uppercase font-mono tracking-wider text-stone-500">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
               {t.totalArtists}
             </span>
             <Award className="w-4 h-4 text-stone-500" />
@@ -127,7 +135,37 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
 
         <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs uppercase font-mono tracking-wider text-stone-500">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
+              {currentLang === 'tr' ? 'Sanat Sözleri' : 'Art Quotes'}
+            </span>
+            <Quote className="w-4 h-4 text-[#9A7137]" />
+          </div>
+          <div className="text-3xl font-serif font-semibold text-stone-900 tabular-nums">
+            {totalQuotesCount}
+          </div>
+          <span className="text-[11px] text-stone-400 font-mono mt-1 block">
+            {currentLang === 'tr' ? 'Tarihçi & Usta Alıntısı' : 'Verified Master Quotes'}
+          </span>
+        </div>
+
+        <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
+          <div className="flex items-center justify-between text-stone-400 mb-2">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
+              {currentLang === 'tr' ? 'Müze & Harita' : 'Museum Map'}
+            </span>
+            <MapPin className="w-4 h-4 text-[#9A7137]" />
+          </div>
+          <div className="text-3xl font-serif font-semibold text-stone-900 tabular-nums">
+            {totalVenuesCount}
+          </div>
+          <span className="text-[11px] text-stone-400 font-mono mt-1 block">
+            {uniqueVenueCountriesCount} {currentLang === 'tr' ? 'Ülkeden Müze' : 'Countries Mapped'}
+          </span>
+        </div>
+
+        <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
+          <div className="flex items-center justify-between text-stone-400 mb-2">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
               {t.totalViews}
             </span>
             <Eye className="w-4 h-4 text-stone-500" />
@@ -142,7 +180,7 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
 
         <div className="bg-white border border-[#E8E2D9] p-5 rounded-xs shadow-xs">
           <div className="flex items-center justify-between text-stone-400 mb-2">
-            <span className="text-xs uppercase font-mono tracking-wider text-stone-500">
+            <span className="text-[11px] uppercase font-mono tracking-wider text-stone-500">
               {currentLang === 'tr' ? 'Küratör Seçkisi' : 'Curator Picks'}
             </span>
             <Palette className="w-4 h-4 text-stone-500" />
@@ -268,8 +306,8 @@ export const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
             </h4>
             <p className="text-stone-600 leading-relaxed font-sans">
               {currentLang === 'tr'
-                ? `NEVAART arşivinde yer alan ${totalArtworksCount} eserin %${topCategory?.percentage || 0}’i ${topCategory?.name || ''} disiplininde yer alırken; onu %${secondCategory?.percentage || 0} ile ${secondCategory?.name || ''} alanı izlemektedir.`
-                : `Across the ${totalArtworksCount} cataloged works in the NEVAART archive, ${topCategory?.percentage || 0}% belong to ${topCategory?.name || ''}, closely accompanied by ${secondCategory?.name || ''} at ${secondCategory?.percentage || 0}%.`}
+                ? `NEVAART arşivinde yer alan ${totalArtworksCount} eserin %${topCategory?.percentage || 0}’i ${topCategory?.name || ''} disiplininde yer alırken; onu %${secondCategory?.percentage || 0} ile ${secondCategory?.name || ''} alanı izlemektedir. Arşiv ayrıca ${totalQuotesCount} doğrulanmış sanat sözü ve ${uniqueVenueCountriesCount} ülkeden ${totalVenuesCount} haritalı müzeyi kapsamaktadır.`
+                : `Across the ${totalArtworksCount} cataloged works in the NEVAART archive, ${topCategory?.percentage || 0}% belong to ${topCategory?.name || ''}, closely accompanied by ${secondCategory?.name || ''} at ${secondCategory?.percentage || 0}%. The archive also curates ${totalQuotesCount} verified art quotes and ${totalVenuesCount} mapped museums across ${uniqueVenueCountriesCount} countries.`}
             </p>
             <p className="text-stone-600 leading-relaxed font-sans">
               {currentLang === 'tr'

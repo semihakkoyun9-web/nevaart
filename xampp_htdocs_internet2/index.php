@@ -16,6 +16,7 @@ require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/icons.php';
 require_once __DIR__ . '/includes/color_extractor.php';
+require_once __DIR__ . '/data/art_quotes.php';
 
 // Aktif dil sözlüğü ve veritabanı/JSON koleksiyonları
 $t = $translations[$currentLang];

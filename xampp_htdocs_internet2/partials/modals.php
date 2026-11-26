@@ -92,17 +92,14 @@ $firstVenue = $venues[0] ?? null;
             </div>
           </div>
 
-          <!-- REAL PIXEL AI COLOR PALETTE & HARMONY ENGINE -->
-          <div class="mt-6 bg-white border border-[#E8E2D9] p-5 shadow-xs">
+          <!-- COLOR PALETTE & HARMONY ANALYSIS -->
+          <div class="mt-6 bg-white border border-[#E8E2D9] p-5 shadow-xs rounded-xl">
             <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <?= icon('sparkles', 'w-4 h-4 text-[#78350F]') ?>
-                <h3 class="font-serif text-lg font-semibold text-[#1C1917]">
-                  Yapay Zeka Gerçek Piksel Renk ve Armoni Analizi
-                </h3>
-              </div>
+              <h3 class="font-serif text-lg font-semibold text-[#1C1917]">
+                <?= $currentLang === 'tr' ? 'Renk Paleti ve Armoni Analizi' : 'Color Palette & Harmony Analysis' ?>
+              </h3>
               <span id="detail-ai-status" class="text-[10px] font-mono px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded">
-                ✓ Görsel Piksel Analizi Doğrulandı
+                ✓ Piksel Analizi
               </span>
             </div>
 
@@ -211,67 +208,62 @@ $firstVenue = $venues[0] ?? null;
               <p id="detail-bio" class="text-stone-600 text-xs leading-relaxed font-sans"></p>
             </div>
 
-            <!-- DIRECT ARTIST CONTACT & ACQUISITION ACTION CARD -->
+            <!-- OFFICIAL MUSEUM ARCHIVE & ACADEMIC RESEARCH LINKS -->
             <div class="mt-6 p-4 bg-white border border-[#E8E2D9] rounded-xl shadow-xs">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-1.5">
-                  <?= icon('message-square', 'w-4 h-4 text-amber-800') ?>
+                  <?= icon('external-link', 'w-4 h-4 text-amber-800') ?>
                   <span class="text-xs uppercase font-mono font-bold text-stone-900">
-                    <?= $currentLang === 'tr' ? 'Eser Sahibiyle İletişim & Edinme' : 'Contact Artist for Inquiries' ?>
+                    <?= $currentLang === 'tr' ? 'Resmi Müze Arşivi & Daha Fazla Bilgi' : 'Official Museum Archive & Research' ?>
                   </span>
                 </div>
                 <span class="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  <?= $currentLang === 'tr' ? 'Doğrudan İletişim Açık' : 'Direct Inquiry Open' ?>
+                  CC0 Open Access
                 </span>
               </div>
 
               <p class="text-xs text-stone-600 mb-3 leading-relaxed">
                 <?= $currentLang === 'tr'
-                  ? 'Bu eseri beğendiyseniz; orijinalini edinmek, sergileme hakları veya sanatçıyla özel bir iş birliği görüşmek için doğrudan mesaj gönderebilirsiniz.'
-                  : 'If you appreciate this artwork, you can contact the artist directly to discuss acquisition, exhibition rights, or custom collaborations.' ?>
+                  ? 'Bu eser resmi müze açık erişim koleksiyonuna aittir. Sergi geçmişini, yüksek çözünürlüklü envanter kaydını ve sanat tarihi kaynaklarını aşağıdan inceleyebilirsiniz.'
+                  : 'This masterpiece belongs to an official public-domain museum archive. Explore its provenance and art history references below.' ?>
               </p>
 
-              <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-stone-100">
-                <button
-                  type="button"
-                  onclick="NevaApp.openInquiryModal()"
-                  class="flex-1 py-2.5 bg-black hover:bg-stone-800 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+              <div class="pt-3 border-t border-stone-100 space-y-3">
+                <a
+                  id="detail-museum-link"
+                  href="https://www.metmuseum.org/art/collection"
+                  target="_blank"
+                  rel="noreferrer"
+                  class="w-full py-2.5 px-4 bg-black hover:bg-stone-800 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-2 transition-all shadow-xs"
                 >
-                  <?= icon('send', 'w-3.5 h-3.5') ?>
-                  <span><?= $currentLang === 'tr' ? 'Eser Sahibine Mesaj Gönder' : 'Send Message to Artist' ?></span>
-                </button>
+                  <?= icon('external-link', 'w-3.5 h-3.5') ?>
+                  <span><?= $currentLang === 'tr' ? 'Resmi Müze Sayfasında İncele' : 'View Official Museum Record' ?></span>
+                </a>
 
-                <button
-                  type="button"
-                  onclick="NevaApp.shareWhatsapp()"
-                  class="py-2.5 px-3 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                  title="WhatsApp ile Eseri Paylaş"
-                >
-                  <?= icon('share-2', 'w-3.5 h-3.5') ?>
-                  <span>Paylaş</span>
-                </button>
-
-                <button
-                  type="button"
-                  onclick="NevaApp.chatCuratorWhatsapp()"
-                  class="py-2.5 px-3 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold rounded-full flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
-                  title="Küratöre WhatsApp ile Danış"
-                >
-                  <?= icon('message-circle', 'w-3.5 h-3.5') ?>
-                  <span>Küratöre Danış</span>
-                </button>
+                <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-[11px] text-stone-600 font-medium">
+                  <a id="detail-wiki-link" href="https://tr.wikipedia.org" target="_blank" rel="noreferrer" class="hover:text-black hover:underline transition-colors">
+                    Wikipedia ↗
+                  </a>
+                  <span class="text-stone-300">·</span>
+                  <a id="detail-gac-link" href="https://artsandculture.google.com" target="_blank" rel="noreferrer" class="hover:text-black hover:underline transition-colors">
+                    Google Arts &amp; Culture ↗
+                  </a>
+                  <span class="text-stone-300">·</span>
+                  <button type="button" onclick="NevaApp.openInquiryModal()" class="hover:text-black hover:underline transition-colors cursor-pointer">
+                    <?= $currentLang === 'tr' ? 'Künyeyi E-Posta Gönder' : 'Email Provenance' ?>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- AI Recommended Similar Artworks -->
+      <!-- Similar Artworks -->
       <section class="mt-12 pt-8 border-t border-[#E8E2D9]">
-        <div class="flex items-center gap-2 mb-6">
-          <?= icon('sparkles', 'w-4 h-4 text-[#78350F]') ?>
+        <div class="mb-6">
           <h3 class="font-serif text-xl font-semibold text-stone-900">
-            Yapay Zeka Destekli Benzer Başyapıtlar
+            <?= $currentLang === 'tr' ? 'Benzer Başyapıtlar' : 'Similar Masterpieces' ?>
           </h3>
         </div>
 
@@ -712,12 +704,18 @@ $firstVenue = $venues[0] ?? null;
   <div class="relative bg-[#FAF8F5] border border-[#E8E2D9] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl rounded-xs">
     
     <!-- Header -->
-    <div class="sticky top-0 z-20 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <?= icon('map-pin', 'w-4 h-4 text-[#78350F]') ?>
-        <h2 class="font-serif text-xl font-semibold text-stone-900">
-          <?= e($t['navExhibitions']) ?> & Google Maps Entegrasyonu
-        </h2>
+    <div class="sticky top-0 z-20 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-6 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <?= icon('map-pin', 'w-4 h-4 text-[#78350F]') ?>
+          <h2 class="font-serif text-xl font-semibold text-stone-900">
+            <?= e($t['navExhibitions']) ?> & Google Maps
+          </h2>
+        </div>
+        <span class="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-stone-900 text-amber-200 font-semibold">
+          <?= icon('globe', 'w-3 h-3') ?>
+          <?= count($venues) ?> <?= $currentLang === 'tr' ? 'Dünya Müzesi' : 'World Museums' ?>
+        </span>
       </div>
       <button
         type="button"
@@ -733,30 +731,36 @@ $firstVenue = $venues[0] ?? null;
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
         
         <!-- Left list of venues (5 cols) -->
-        <div class="md:col-span-5 space-y-3">
-          <span class="text-[10px] font-mono uppercase tracking-widest text-[#78350F] font-semibold block mb-2">
-            Aktif Sergi Salonları
+        <div class="md:col-span-5">
+          <span class="text-[10px] font-mono uppercase tracking-widest text-[#78350F] font-semibold block mb-2.5">
+            <?= $currentLang === 'tr' ? 'Dünya Müzeleri & Sergi Salonları' : 'World Museums & Exhibition Venues' ?> (<?= count($venues) ?>)
           </span>
           
-          <?php foreach ($venues as $vIdx => $v): ?>
-            <button
-              type="button"
-              data-venue-btn="<?= e($v['id']) ?>"
-              onclick="NevaApp.selectVenue('<?= e($v['id']) ?>')"
-              class="venue-item-btn w-full text-left p-3.5 border rounded-xs transition-all cursor-pointer <?= $vIdx === 0 ? 'bg-white border-[#78350F] shadow-sm' : 'bg-white/60 border-[#E8E2D9] hover:bg-white' ?>"
-            >
-              <div class="flex items-center justify-between text-xs text-stone-500 font-mono mb-1">
-                <span><?= e($v['city']) ?>, <?= e($v['country']) ?></span>
-                <span class="text-[10px] bg-stone-100 px-1.5 py-0.5 rounded text-stone-700">2026</span>
-              </div>
-              <h4 class="font-serif text-base font-semibold text-stone-900">
-                <?= e($v['name']) ?>
-              </h4>
-              <p class="text-xs text-[#78350F] font-medium mt-1 truncate">
-                <?= e($v['exhibitionTitle']) ?>
-              </p>
-            </button>
-          <?php endforeach; ?>
+          <div class="max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
+            <?php foreach ($venues as $vIdx => $v): ?>
+              <button
+                type="button"
+                data-venue-btn="<?= e($v['id']) ?>"
+                onclick="NevaApp.selectVenue('<?= e($v['id']) ?>')"
+                class="venue-item-btn w-full text-left p-3.5 border rounded-xs transition-all cursor-pointer <?= $vIdx === 0 ? 'bg-white border-[#78350F] shadow-sm' : 'bg-white/60 border-[#E8E2D9] hover:bg-white' ?>"
+              >
+                <div class="flex items-center justify-between text-xs text-stone-500 font-mono mb-1">
+                  <span><?= e($v['city']) ?>, <?= e($v['country']) ?></span>
+                  <?php if (!empty($v['artworksCount'])): ?>
+                    <span class="text-[10px] bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded text-amber-900 font-semibold"><?= (int)$v['artworksCount'] ?> <?= $currentLang === 'tr' ? 'Eser' : 'Works' ?></span>
+                  <?php else: ?>
+                    <span class="text-[10px] bg-stone-100 px-1.5 py-0.5 rounded text-stone-700"><?= $currentLang === 'tr' ? 'Kalıcı' : 'Permanent' ?></span>
+                  <?php endif; ?>
+                </div>
+                <h4 class="font-serif text-base font-semibold text-stone-900">
+                  <?= e($v['name']) ?>
+                </h4>
+                <p class="text-xs text-[#78350F] font-medium mt-1 truncate">
+                  <?= e($v['exhibitionTitle']) ?>
+                </p>
+              </button>
+            <?php endforeach; ?>
+          </div>
         </div>
 
         <!-- Right Map Canvas & Details (7 cols) -->
