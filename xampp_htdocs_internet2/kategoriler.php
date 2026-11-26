@@ -106,12 +106,12 @@ usort($ranked, fn($a, $b) => $b['density'] <=> $a['density'] ?: $a['art']['id'] 
     </div>
 
     <!-- Color Spectrum Buttons -->
-    <div class="bg-white border border-stone-200 rounded-2xl p-6 mb-8 shadow-xs space-y-4">
-      <div class="flex flex-wrap gap-2">
+    <div class="bg-white border border-stone-200 rounded-2xl p-4 sm:p-6 mb-8 shadow-xs space-y-4">
+      <div class="flex flex-wrap gap-1.5 sm:gap-2">
         <?php foreach ($colorFamilies as $cf): ?>
           <a
             href="?cat=<?= e($selCat) ?>&color=<?= e($cf['id']) ?>&century=<?= e($selCentury) ?>&q=<?= urlencode($q) ?>"
-            class="px-3.5 py-2 rounded-full text-xs flex items-center gap-2 border transition-all <?= $selColor === $cf['id'] ? 'bg-black text-white border-black font-semibold' : 'bg-stone-50 text-stone-800 border-stone-200 hover:border-stone-500' ?>"
+            class="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs flex items-center gap-1.5 sm:gap-2 border transition-all <?= $selColor === $cf['id'] ? 'bg-black text-white border-black font-semibold' : 'bg-stone-50 text-stone-800 border-stone-200 hover:border-stone-500' ?>"
           >
             <span class="w-3.5 h-3.5 rounded-full border border-black/20" style="background-color: <?= e($cf['dot']) ?>;"></span>
             <span><?= e($currentLang === 'tr' ? $cf['nameTr'] : $cf['nameEn']) ?></span>

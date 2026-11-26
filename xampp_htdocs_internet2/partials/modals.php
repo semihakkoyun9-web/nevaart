@@ -9,25 +9,26 @@ $firstVenue = $venues[0] ?? null;
 <!-- =========================================================================
      1. ARTWORK DEEP DIVE DETAIL MODAL (ArtworkDetailModal.tsx birebir karşılığı)
      ========================================================================= -->
-<div id="artwork-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-  <div class="relative bg-[#FAF8F5] border border-[#E8E2D9] w-full max-w-6xl max-h-[94vh] overflow-y-auto shadow-2xl rounded-xs">
+<div id="artwork-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-200">
+  <div class="relative bg-[#FAF8F5] border border-[#E8E2D9] w-full max-w-6xl max-h-[95vh] overflow-y-auto shadow-2xl rounded-xs">
     
     <!-- Top Sticky Bar -->
-    <div class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <span id="detail-accession" class="font-mono text-xs text-[#78350F] font-semibold">ACC.2026.0101</span>
-        <span class="text-stone-300">|</span>
-        <span id="detail-artist-top" class="text-xs uppercase tracking-widest text-stone-600 font-medium">Refik Anadol</span>
+    <div class="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-3.5 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <span id="detail-accession" class="font-mono text-[11px] sm:text-xs text-[#78350F] font-semibold truncate">ACC.2026.0101</span>
+        <span class="hidden sm:inline text-stone-300">|</span>
+        <span id="detail-artist-top" class="hidden sm:inline text-xs uppercase tracking-widest text-stone-600 font-medium truncate">Refik Anadol</span>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 sm:gap-2 shrink-0">
         <button
           type="button"
           onclick="NevaApp.openInquiryModal()"
-          class="px-3.5 py-1.5 bg-black hover:bg-stone-800 text-white text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+          class="px-2.5 sm:px-3.5 py-1.5 bg-black hover:bg-stone-800 text-white text-[11px] sm:text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
         >
-          <?= icon('message-square', 'w-3.5 h-3.5') ?>
-          <span><?= $currentLang === 'tr' ? 'Sanatçıya Yaz' : 'Contact Artist' ?></span>
+          <?= icon('message-square', 'w-3.5 h-3.5 shrink-0') ?>
+          <span class="hidden sm:inline"><?= $currentLang === 'tr' ? 'Sanatçıya Yaz' : 'Contact Artist' ?></span>
+          <span class="sm:hidden"><?= $currentLang === 'tr' ? 'İletişim' : 'Write' ?></span>
         </button>
         <button
           type="button"
@@ -56,8 +57,8 @@ $firstVenue = $venues[0] ?? null;
     </div>
 
     <!-- Modal Main Body -->
-    <div class="p-6 md:p-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div class="p-4 sm:p-6 md:p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         
         <!-- Left 7 Columns: Real High-Res Visual & Pixel Color Extraction -->
         <div class="lg:col-span-7">
@@ -82,7 +83,7 @@ $firstVenue = $venues[0] ?? null;
             </div>
 
             <!-- Sub-image technical ribbon -->
-            <div class="mt-3 pt-3 border-t border-[#F5EFEB] flex items-center justify-between text-xs">
+            <div class="mt-3 pt-3 border-t border-[#F5EFEB] flex flex-wrap items-center justify-between gap-2 text-xs">
               <span id="detail-dim-ribbon" class="text-[#78716C] font-mono text-[11px]"></span>
               <div class="flex items-center gap-2">
                 <span class="text-[10px] bg-stone-100 px-2 py-0.5 rounded font-mono text-stone-600">
@@ -115,7 +116,7 @@ $firstVenue = $venues[0] ?? null;
             </div>
 
             <!-- Color Swatches Grid -->
-            <div id="detail-swatches-grid" class="grid grid-cols-5 gap-3"></div>
+            <div id="detail-swatches-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3"></div>
 
             <!-- Swatch Inspector Detail -->
             <div id="detail-swatch-inspector" class="mt-4 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-stone-600"></div>
@@ -736,7 +737,7 @@ $firstVenue = $venues[0] ?? null;
             <?= $currentLang === 'tr' ? 'Dünya Müzeleri & Sergi Salonları' : 'World Museums & Exhibition Venues' ?> (<?= count($venues) ?>)
           </span>
           
-          <div class="max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
+          <div class="max-h-[220px] md:max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
             <?php foreach ($venues as $vIdx => $v): ?>
               <button
                 type="button"
@@ -768,7 +769,7 @@ $firstVenue = $venues[0] ?? null;
           <div class="md:col-span-7 bg-white border border-[#E8E2D9] p-5 flex flex-col justify-between shadow-xs">
             <div>
               <!-- Google Maps Iframe -->
-              <div class="w-full h-56 bg-stone-200 border border-stone-300 rounded overflow-hidden relative mb-4">
+              <div class="w-full h-48 sm:h-60 bg-stone-200 border border-stone-300 rounded overflow-hidden relative mb-4">
                 <iframe
                   id="map-iframe"
                   title="Exhibition Map"
@@ -803,7 +804,7 @@ $firstVenue = $venues[0] ?? null;
             </div>
 
             <!-- Action Link to Google Maps External -->
-            <div class="mt-6 pt-4 border-t border-stone-200 flex items-center justify-between">
+            <div class="mt-6 pt-4 border-t border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <span id="map-venue-coords" class="font-mono text-[11px] text-stone-500">
                 Koordinat: <?= number_format((float)$firstVenue['lat'], 4) ?> N, <?= number_format((float)$firstVenue['lng'], 4) ?> E
               </span>
@@ -812,7 +813,7 @@ $firstVenue = $venues[0] ?? null;
                 href="https://maps.google.com/?q=<?= (float)$firstVenue['lat'] ?>,<?= (float)$firstVenue['lng'] ?>"
                 target="_blank"
                 rel="noreferrer"
-                class="px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded flex items-center gap-1.5 transition-colors cursor-pointer"
+                class="w-full sm:w-auto px-4 py-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
               >
                 <?= icon('navigation', 'w-3.5 h-3.5') ?>
                 <span>Google Maps'te Yol Tarifi Al</span>

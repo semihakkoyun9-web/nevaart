@@ -54,12 +54,12 @@ $colorFamilies = [
   <div class="space-y-4 mb-10">
     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
       <!-- Category Filter Pills -->
-      <div class="flex flex-wrap items-center gap-1.5 p-1 bg-stone-100/90 rounded-full border border-stone-200/80">
+      <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
           data-cat-pill="all"
           onclick="NevaApp.filterByCategory('all')"
-          class="cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap bg-black text-white shadow-xs font-semibold"
+          class="cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border bg-black text-white border-black shadow-xs font-semibold"
         >
           <?= e($t['allCategories']) ?>
         </button>
@@ -69,7 +69,7 @@ $colorFamilies = [
           type="button"
           data-cat-pill="favorites"
           onclick="NevaApp.filterByCategory('favorites')"
-          class="cat-filter-btn px-3.5 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap text-stone-700 hover:text-red-600 hover:bg-stone-200/60 flex items-center gap-1.5"
+          class="cat-filter-btn px-3.5 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border border-stone-200 bg-white text-stone-700 hover:text-red-600 hover:border-red-300 flex items-center gap-1.5"
         >
           <span class="text-red-500">❤️</span>
           <span id="cat-pill-fav-label"><?= $currentLang === 'tr' ? 'Beğendiklerim (0)' : 'Favorites (0)' ?></span>
@@ -79,7 +79,7 @@ $colorFamilies = [
             type="button"
             data-cat-pill="<?= e($cat['id']) ?>"
             onclick="NevaApp.filterByCategory('<?= e($cat['id']) ?>')"
-            class="cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap text-stone-700 hover:text-black hover:bg-stone-200/60"
+            class="cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border border-stone-200 bg-white text-stone-700 hover:text-black hover:border-black"
           >
             <?= e($currentLang === 'tr' ? $cat['nameTr'] : $cat['nameEn']) ?>
           </button>
@@ -87,7 +87,7 @@ $colorFamilies = [
       </div>
 
       <!-- Live Search Input -->
-      <div class="relative min-w-[280px]">
+      <div class="relative w-full lg:w-auto lg:min-w-[280px]">
         <span class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none flex items-center">
           <?= icon('search', 'w-4 h-4') ?>
         </span>

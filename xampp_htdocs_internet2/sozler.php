@@ -53,7 +53,7 @@ $filteredQuotes = array_filter($artQuotes, function ($item) use ($era, $q) {
     </div>
 
     <form method="get" class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 mb-10">
-      <div class="flex flex-wrap items-center gap-1.5 p-1 bg-stone-100 rounded-full border border-stone-200">
+      <div class="flex flex-wrap items-center gap-1.5 p-1.5 bg-stone-100 rounded-2xl sm:rounded-full border border-stone-200">
         <?php
         $tabs = [
             'all' => $currentLang === 'tr' ? 'Tümü (' . count($artQuotes) . ')' : 'All (' . count($artQuotes) . ')',
@@ -70,9 +70,9 @@ $filteredQuotes = array_filter($artQuotes, function ($item) use ($era, $q) {
         <?php endforeach; ?>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
         <input type="hidden" name="era" value="<?= e($era) ?>" />
-        <input type="text" name="q" value="<?= e($q) ?>" placeholder="<?= $currentLang === 'tr' ? 'Sanatçı veya söz ara...' : 'Search artist or quote...' ?>" class="px-4 py-2 bg-white border border-stone-200 focus:border-black rounded-full text-xs outline-none shadow-xs min-w-[240px]" />
+        <input type="text" name="q" value="<?= e($q) ?>" placeholder="<?= $currentLang === 'tr' ? 'Sanatçı veya söz ara...' : 'Search artist or quote...' ?>" class="w-full sm:w-auto sm:min-w-[240px] px-4 py-2 bg-white border border-stone-200 focus:border-black rounded-full text-xs outline-none shadow-xs" />
         <button type="submit" class="px-5 py-2 bg-black text-white text-xs font-semibold rounded-full cursor-pointer">Ara</button>
       </div>
     </form>

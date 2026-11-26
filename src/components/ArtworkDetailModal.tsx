@@ -247,22 +247,22 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="relative bg-[#FAF8F5] border border-[#E8E2D9] w-full max-w-6xl max-h-[94vh] overflow-y-auto shadow-2xl rounded-xs">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 animate-in fade-in duration-200">
+      <div className="relative bg-[#FAF8F5] border border-[#E8E2D9] w-full max-w-6xl max-h-[95vh] overflow-y-auto shadow-2xl rounded-xs">
 
         {/* Top Sticky Bar */}
-        <div className="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs text-[#78350F] font-semibold">
+        <div className="sticky top-0 z-30 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-[#E8E2D9] px-3.5 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <span className="font-mono text-[11px] sm:text-xs text-[#78350F] font-semibold truncate">
               {artwork.accessionNumber}
             </span>
-            <span className="text-stone-300">|</span>
-            <span className="text-xs uppercase tracking-widest text-stone-600 font-medium">
+            <span className="hidden sm:inline text-stone-300">|</span>
+            <span className="hidden sm:inline text-xs uppercase tracking-widest text-stone-600 font-medium truncate">
               {artwork.artist}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <a
               href={
                 artwork.exhibitionLocation.city === 'Cleveland'
@@ -271,10 +271,11 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
               }
               target="_blank"
               rel="noreferrer"
-              className="px-3.5 py-1.5 bg-black hover:bg-stone-800 text-white text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-2.5 sm:px-3.5 py-1.5 bg-black hover:bg-stone-800 text-white text-[11px] sm:text-xs font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>{currentLang === 'tr' ? 'Resmi Müze Kaynağı' : 'Official Museum Record'}</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">{currentLang === 'tr' ? 'Resmi Müze Kaynağı' : 'Official Museum Record'}</span>
+              <span className="sm:hidden">{currentLang === 'tr' ? 'Müze' : 'Museum'}</span>
             </a>
             <button
               onClick={handleShareWhatsapp}
@@ -301,8 +302,8 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
         </div>
 
         {/* Modal Main Body */}
-        <div className="p-6 md:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="p-4 sm:p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
 
             {/* Left 7 Columns: Real High-Res Visual & Pixel Color Extraction */}
             <div className="lg:col-span-7">
@@ -342,7 +343,7 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                 </div>
 
                 {/* Sub-image technical ribbon */}
-                <div className="mt-3 pt-3 border-t border-[#F5EFEB] flex items-center justify-between text-xs">
+                <div className="mt-3 pt-3 border-t border-[#F5EFEB] flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="text-[#78716C] font-mono text-[11px]">
                     {artwork.dimensions} · {artwork.resolution}
                   </span>
@@ -381,7 +382,7 @@ export const ArtworkDetailModal: React.FC<ArtworkDetailModalProps> = ({
                 </div>
 
                 {/* Color Swatches Grid */}
-                <div className="grid grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3">
                   {activePalette.map((color, i) => {
                     const isSelected = selectedColorDetail?.hex === color.hex;
                     return (

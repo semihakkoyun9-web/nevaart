@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { initialArtworks, initialCategories, initialReviews } from './data/mockArtworks';
 import { Artwork, CuratorReview, User, UserRole } from './types';
+import {
+  hashPassword,
+  evaluatePasswordStrength,
+  getLoginLockoutRemainingSeconds,
+  recordFailedLoginAttempt,
+  clearFailedLoginAttempts,
+  saveSecureSession,
+  readValidSecureSession,
+  clearSecureSession,
+} from './utils/authSecurity';
 import { Header, ActivePage } from './components/Header';
 import { PanoramicGalleryShowcase } from './components/PanoramicGalleryShowcase';
 import { CuratedDarkSection } from './components/CuratedDarkSection';
@@ -43,10 +53,10 @@ export default function App() {
   const [categories] = useState(initialCategories);
   const [reviews, setReviews] = useState<CuratorReview[]>(initialReviews);
 
-  // Gerçek Kayıtlı Hesaplar (Yalnızca semihakkoyun9@gmail.com Baş Küratör olarak başlar)
+  // Gerçek Kayıtlı Hesaplar (Parolalar SHA-256 + tuz ile saklanır; yalnızca semihakkoyun9@gmail.com Baş Küratördür)
   const [accounts, setAccounts] = useState<RegisteredAccount[]>(() => {
     try {
-      const saved = localStorage.getItem('nevaart_accounts_v2');
+      const saved = localStorage.getItem('nevaart_accounts_v3');
       if (saved) {
         const parsed: RegisteredAccount[] = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.some((a) => a.email.toLowerCase() === 'semihakkoyun9@gmail.com')) {
@@ -57,14 +67,38 @@ export default function App() {
     return [DEFAULT_CURATOR_ACCOUNT];
   });
 
-  // Gerçek Aktif Oturum (Varsayılan olarak giriş yapılmamış: null)
+  // Başlangıçta kurucu hesabın parolasını SHA-256 özetine yükselt (düz metin saklama yok)
+  useEffect(() => {
+    const migratePlainPasswords = async () => {
+      let changed = false;
+      const upgraded = await Promise.all(
+        accounts.map(async (acc) => {
+          if (!acc.password.startsWith('sha256$') && !acc.password.startsWith('fnv$') && !acc.password.startsWith('google_oauth_verified_')) {
+            changed = true;
+            const hashed = await hashPassword(acc.email, acc.password);
+            return { ...acc, password: hashed };
+          }
+          return acc;
+        })
+      );
+      if (changed) {
+        setAccounts(upgraded);
+        try {
+          localStorage.setItem('nevaart_accounts_v3', JSON.stringify(upgraded));
+        } catch {}
+      }
+    };
+    migratePlainPasswords();
+  }, []);
+
+  // Süreli ve Doğrulanmış Aktif Oturum (Varsayılan olarak giriş yapılmamış: null)
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
-      const savedEmail = localStorage.getItem('nevaart_session_email');
-      if (savedEmail) {
-        const savedAccs = localStorage.getItem('nevaart_accounts_v2');
+      const session = readValidSecureSession();
+      if (session?.email) {
+        const savedAccs = localStorage.getItem('nevaart_accounts_v3');
         const list: RegisteredAccount[] = savedAccs ? JSON.parse(savedAccs) : [DEFAULT_CURATOR_ACCOUNT];
-        const found = list.find((a) => a.email.toLowerCase() === savedEmail.toLowerCase());
+        const found = list.find((a) => a.email.toLowerCase() === session.email.toLowerCase());
         if (found) {
           const { password: _, ...safeUser } = found;
           return safeUser;
@@ -125,40 +159,90 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // --- GERÇEK GİRİŞ, KAYIT, ÇIKIŞ VE RBAC ROL ATAMA ---
+  // --- GÜVENLİ GİRİŞ, KAYIT, ÇIKIŞ, ŞİFRE DEĞİŞTİRME VE RBAC ROL ATAMA ---
   const saveAccounts = (next: RegisteredAccount[]) => {
     setAccounts(next);
     try {
-      localStorage.setItem('nevaart_accounts_v2', JSON.stringify(next));
+      localStorage.setItem('nevaart_accounts_v3', JSON.stringify(next));
     } catch {}
   };
 
-  const handleLogin = (email: string, password: string): { ok: boolean; message: string } => {
-    const found = accounts.find((a) => a.email.toLowerCase() === email.toLowerCase());
-    if (!found) {
-      return { ok: false, message: 'Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.' };
+  const handleLogin = async (
+    email: string,
+    password: string,
+    rememberMe = true
+  ): Promise<{ ok: boolean; message: string }> => {
+    const lockedSec = getLoginLockoutRemainingSeconds();
+    if (lockedSec > 0) {
+      return {
+        ok: false,
+        message: `Çok fazla hatalı deneme yapıldı. Güvenlik nedeniyle lütfen ${lockedSec} saniye bekleyin.`,
+      };
     }
-    if (found.password !== password) {
-      return { ok: false, message: 'Girdiğiniz şifre hatalı. Lütfen tekrar deneyin.' };
+
+    const cleanEmail = email.trim().toLowerCase();
+    const found = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+    const hashedInput = await hashPassword(cleanEmail, password);
+    const isPasswordValid = found
+      ? found.password === hashedInput || found.password === password
+      : false;
+
+    if (!found || !isPasswordValid) {
+      const { lockedSeconds, remainingTries } = recordFailedLoginAttempt();
+      if (lockedSeconds > 0) {
+        return {
+          ok: false,
+          message: `5 hatalı deneme sınırı aşıldı. Hesap güvenliği için ${lockedSeconds} saniye kilitlendi.`,
+        };
+      }
+      return {
+        ok: false,
+        message: `E-posta veya şifre hatalı. (Kalan deneme hakkı: ${remainingTries})`,
+      };
     }
+
+    clearFailedLoginAttempts();
     const { password: _, ...safeUser } = found;
     setCurrentUser(safeUser);
-    try {
-      localStorage.setItem('nevaart_session_email', found.email);
-    } catch {}
-    showToast(`Hoş geldiniz, ${found.name}! (${found.role === 'curator' ? 'Baş Küratör' : found.role === 'member' ? 'Kayıtlı Sanatçı' : 'Ziyaretçi'})`);
+    saveSecureSession(found.email, rememberMe, 'password');
+    showToast(
+      `Hoş geldiniz, ${found.name}! (${
+        found.role === 'curator'
+          ? 'Baş Küratör'
+          : found.role === 'member'
+          ? 'Kayıtlı Sanatçı'
+          : 'Ziyaretçi'
+      })`
+    );
     return { ok: true, message: `Hoş geldiniz, ${found.name}!` };
   };
 
-  const handleRegister = (name: string, email: string, password: string): { ok: boolean; message: string } => {
-    if (accounts.some((a) => a.email.toLowerCase() === email.toLowerCase())) {
+  const handleRegister = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<{ ok: boolean; message: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      return { ok: false, message: 'Lütfen geçerli bir e-posta adresi girin.' };
+    }
+    const strength = evaluatePasswordStrength(password);
+    if (!strength.isValid) {
+      return {
+        ok: false,
+        message: 'Şifreniz en az 8 karakter olmalı; büyük harf, küçük harf ve rakam içermelidir.',
+      };
+    }
+    if (accounts.some((a) => a.email.toLowerCase() === cleanEmail)) {
       return { ok: false, message: 'Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapın.' };
     }
+
+    const hashedPassword = await hashPassword(cleanEmail, password);
     const newAccount: RegisteredAccount = {
       id: Date.now(),
-      name,
-      email,
-      password,
+      name: name.trim(),
+      email: cleanEmail,
+      password: hashedPassword,
       role: 'visitor', // Yeni hesaplar daima Ziyaretçi olarak başlar; yetkiyi yalnızca Küratör atar!
       joinedDate: new Date().toISOString().split('T')[0],
     };
@@ -166,25 +250,25 @@ export default function App() {
     saveAccounts(next);
     const { password: _, ...safeUser } = newAccount;
     setCurrentUser(safeUser);
-    try {
-      localStorage.setItem('nevaart_session_email', newAccount.email);
-    } catch {}
-    showToast(`Hesabınız oluşturuldu, ${name}! (Rol: Ziyaretçi)`);
-    return { ok: true, message: `Kaydınız tamamlandı, ${name}!` };
+    saveSecureSession(newAccount.email, true, 'password');
+    showToast(`Hesabınız güvenle oluşturuldu, ${newAccount.name}! (Rol: Ziyaretçi)`);
+    return { ok: true, message: `Kaydınız tamamlandı, ${newAccount.name}!` };
   };
 
   const isFounderAccount = currentUser?.email.toLowerCase() === 'semihakkoyun9@gmail.com';
 
-  const handleGoogleLogin = (name: string, email: string): { ok: boolean; message: string } => {
+  // Yalnızca doğrulanmış Google OAuth 2.0 JWT belirteci ile çağrılır (sahte giriş yok)
+  const handleVerifiedGoogleOAuth = (
+    name: string,
+    email: string
+  ): { ok: boolean; message: string } => {
     const cleanEmail = email.trim().toLowerCase();
     const existing = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
     if (existing) {
       const { password: _, ...safeUser } = existing;
       setCurrentUser(safeUser);
-      try {
-        localStorage.setItem('nevaart_session_email', existing.email);
-      } catch {}
-      showToast(`Google ile hoş geldiniz, ${existing.name}!`);
+      saveSecureSession(existing.email, true, 'google_oauth');
+      showToast(`Google OAuth ile giriş yapıldı: ${existing.name}`);
       return { ok: true, message: `Google ile giriş yapıldı: ${existing.name}` };
     }
 
@@ -200,11 +284,39 @@ export default function App() {
     saveAccounts([...accounts, newAccount]);
     const { password: _, ...safeUser } = newAccount;
     setCurrentUser(safeUser);
-    try {
-      localStorage.setItem('nevaart_session_email', newAccount.email);
-    } catch {}
-    showToast(`Google hesabınızla giriş yapıldı, ${name}!`);
+    saveSecureSession(newAccount.email, true, 'google_oauth');
+    showToast(`Google hesabınız doğrulandı, hoş geldiniz ${name}!`);
     return { ok: true, message: `Hoş geldiniz, ${name}!` };
+  };
+
+  const handleChangePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ ok: boolean; message: string }> => {
+    if (!currentUser) return { ok: false, message: 'Aktif oturum bulunamadı.' };
+    const cleanEmail = currentUser.email.toLowerCase();
+    const existing = accounts.find((a) => a.email.toLowerCase() === cleanEmail);
+    if (!existing) return { ok: false, message: 'Hesap kaydı bulunamadı.' };
+
+    const currentHash = await hashPassword(cleanEmail, currentPassword);
+    if (existing.password !== currentHash && existing.password !== currentPassword) {
+      return { ok: false, message: 'Mevcut şifreniz doğrulanamadı.' };
+    }
+    const strength = evaluatePasswordStrength(newPassword);
+    if (!strength.isValid) {
+      return {
+        ok: false,
+        message: 'Yeni şifreniz en az 8 karakter, büyük/küçük harf ve rakam içermelidir.',
+      };
+    }
+
+    const nextHash = await hashPassword(cleanEmail, newPassword);
+    const next = accounts.map((acc) =>
+      acc.email.toLowerCase() === cleanEmail ? { ...acc, password: nextHash } : acc
+    );
+    saveAccounts(next);
+    showToast('✓ Şifreniz SHA-256 ile güncellendi.');
+    return { ok: true, message: 'Şifreniz başarıyla güncellendi.' };
   };
 
   // Kurucu Baş Küratör kendi rolünü test için değiştirdiyse tek tıkla geri alabilir
@@ -220,9 +332,7 @@ export default function App() {
 
   const handleLogout = () => {
     setCurrentUser(null);
-    try {
-      localStorage.removeItem('nevaart_session_email');
-    } catch {}
+    clearSecureSession();
     if (activePage === 'admin') setActivePage('home');
     showToast('Oturumunuz güvenli şekilde kapatıldı.');
   };
@@ -442,21 +552,21 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFA] text-[#111111] selection:bg-black selection:text-white">
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-black text-white px-4 py-2.5 rounded-full text-xs font-medium shadow-2xl flex items-center gap-2 border border-stone-800">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span>{notification}</span>
+        <div className="fixed bottom-20 lg:bottom-6 right-3 left-3 sm:left-auto sm:right-6 z-50 bg-black text-white px-4 py-2.5 rounded-2xl sm:rounded-full text-xs font-medium shadow-2xl flex items-center gap-2 border border-stone-800 max-w-md sm:w-auto">
+          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+          <span className="leading-snug">{notification}</span>
         </div>
       )}
 
       {/* Kurucu Küratör başka bir rolü test ederken tek tıkla geri alma çubuğu */}
       {isFounderAccount && currentUser && currentUser.role !== 'curator' && (
-        <div className="fixed bottom-6 left-6 z-50 bg-[#111113] text-white px-4 py-2.5 rounded-lg text-xs shadow-2xl border border-amber-500/40 flex items-center gap-3">
+        <div className="fixed bottom-20 lg:bottom-6 left-3 right-3 sm:right-auto sm:left-6 z-50 bg-[#111113] text-white px-4 py-2.5 rounded-lg text-xs shadow-2xl border border-amber-500/40 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
           <span className="text-stone-300">
             Şu an <strong className="text-white">{currentUser.role === 'member' ? 'Kayıtlı Sanatçı' : 'Ziyaretçi'}</strong> rolünü test ediyorsunuz
           </span>
           <button
             onClick={handleRestoreCuratorRole}
-            className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded text-[11px] cursor-pointer transition-colors"
+            className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-black font-semibold rounded text-[11px] cursor-pointer transition-colors shrink-0"
           >
             ↩ Küratör Rolüne Dön
           </button>
@@ -476,7 +586,7 @@ export default function App() {
         pendingCount={pendingSubmissions.length}
       />
 
-      <main className="flex-1">
+      <main className={`flex-1 ${activePage === 'home' ? '' : 'pt-20 sm:pt-24'}`}>
         {activePage === 'quotes' ? (
           <ArtQuotesPage
             currentLang={currentLang}
@@ -637,13 +747,17 @@ export default function App() {
           currentUser={currentUser}
           isFounderAccount={isFounderAccount}
           currentLang={currentLang}
+          pendingCount={pendingSubmissions.length}
+          favoritesCount={likedIds.length + likedQuoteIds.length}
           onClose={() => setIsAuthOpen(false)}
           onLogin={handleLogin}
           onRegister={handleRegister}
-          onGoogleLogin={handleGoogleLogin}
+          onGoogleLogin={handleVerifiedGoogleOAuth}
+          onChangePassword={handleChangePassword}
           onLogout={handleLogout}
           onRestoreCuratorRole={handleRestoreCuratorRole}
           onOpenAdminPanel={() => navigateTo('admin')}
+          onOpenFavorites={() => navigateTo('favorites')}
         />
       )}
 

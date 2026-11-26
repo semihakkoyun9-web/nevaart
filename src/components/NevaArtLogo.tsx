@@ -9,7 +9,7 @@ export const NevaArtLogo: React.FC<NevaArtLogoProps> = ({
   theme = 'light',
   size = 'md',
 }) => {
-  const dimClass = size === 'sm' ? 'w-8 h-8' : 'w-10 h-10';
+  const dimClass = size === 'sm' ? 'w-8 h-8' : 'w-8 h-8 sm:w-10 sm:h-10';
   const isDark = theme === 'dark';
 
   return (

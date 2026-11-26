@@ -4,7 +4,7 @@
  * Birebir React Footer.tsx karşılığı — %100 aynı HTML ve CSS sınıfları
  */
 ?>
-<footer id="footer-contact" class="bg-[#111113] text-stone-300 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-stone-800">
+<footer id="footer-contact" class="bg-[#111113] text-stone-300 pt-16 pb-24 lg:pb-12 px-4 sm:px-6 lg:px-8 border-t border-stone-800">
   <div class="max-w-7xl mx-auto">
     <!-- Newsletter Subscription Strip -->
     <div class="pb-14 border-b border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -22,7 +22,7 @@
         </p>
       </div>
 
-      <form onsubmit="NevaApp.handleSubscribeNewsletter(event)" class="flex items-center gap-2 max-w-md w-full">
+      <form onsubmit="NevaApp.handleSubscribeNewsletter(event)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-2 max-w-md w-full">
         <div class="relative flex-1">
           <span class="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center">
             <?= icon('mail', 'w-4 h-4') ?>

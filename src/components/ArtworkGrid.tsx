@@ -163,7 +163,7 @@ export const ArtworkGrid: React.FC<ArtworkGridProps> = ({
           </div>
 
           {/* Live Search Input */}
-          <div className="relative min-w-[280px]">
+          <div className="relative w-full lg:w-auto lg:min-w-[280px]">
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"

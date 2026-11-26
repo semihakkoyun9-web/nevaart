@@ -32,7 +32,7 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   return (
-    <footer id="footer-contact" className="bg-[#111113] text-stone-300 pt-16 pb-12 px-4 sm:px-6 lg:px-8 border-t border-stone-800">
+    <footer id="footer-contact" className="bg-[#111113] text-stone-300 pt-16 pb-24 lg:pb-12 px-4 sm:px-6 lg:px-8 border-t border-stone-800">
       <div className="max-w-7xl mx-auto">
         {/* Newsletter Subscription Strip */}
         <div className="pb-14 border-b border-stone-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -50,7 +50,7 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
           </div>
 
-          <form onSubmit={handleSubscribe} className="flex items-center gap-2 max-w-md w-full">
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-2 max-w-md w-full">
             <div className="relative flex-1">
               <Mail className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input

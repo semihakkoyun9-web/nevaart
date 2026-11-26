@@ -94,7 +94,7 @@ export const CuratorAdminPage: React.FC<CuratorAdminPageProps> = ({
             </div>
 
             {/* Panel Tabs */}
-            <div className="inline-flex p-1.5 bg-stone-900 border border-stone-800 rounded-full self-start md:self-end">
+            <div className="flex flex-wrap sm:inline-flex gap-1.5 p-1.5 bg-stone-900 border border-stone-800 rounded-2xl sm:rounded-full self-start md:self-end w-full sm:w-auto">
               <button
                 onClick={() => setTab('approvals')}
                 className={`px-4 py-2 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
@@ -297,7 +297,7 @@ export const CuratorAdminPage: React.FC<CuratorAdminPageProps> = ({
             </div>
             <div className="divide-y divide-stone-100 max-h-[600px] overflow-y-auto">
               {artworks.slice(0, 30).map((art) => (
-                <div key={art.id} className="px-6 py-3 flex items-center justify-between gap-4 hover:bg-stone-50">
+                <div key={art.id} className="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 hover:bg-stone-50">
                   <div className="flex items-center gap-3 min-w-0">
                     <img src={art.imageUrl} alt={art.title} className="w-12 h-10 rounded object-cover shrink-0 bg-stone-100" />
                     <div className="min-w-0">

@@ -123,12 +123,13 @@ window.NevaApp = (function () {
   }
 
   // =========================================================================
-  // 1. 3D PANORAMİK KARUSEL FİZİK MOTORU (120fps requestAnimationFrame)
+  // 1. NON-OVERLAPPING PANORAMIC CAROUSEL ENGINE (120fps, Zero Stutter)
   // =========================================================================
-  function getRadii() {
-    if (window.innerWidth < 640) return { rx: 270, rz: 190 };
-    if (window.innerWidth < 1024) return { rx: 380, rz: 260 };
-    return { rx: 490, rz: 320 };
+  function getSpacing() {
+    if (window.innerWidth < 480) return 158;
+    if (window.innerWidth < 640) return 178;
+    if (window.innerWidth < 1024) return 218;
+    return 252;
   }
 
   function initCarousel() {
@@ -136,9 +137,9 @@ window.NevaApp = (function () {
     const heroSection = document.getElementById('hero');
     if (!stage) return;
 
-    carousel.radii = getRadii();
+    carousel.spacing = getSpacing();
     window.addEventListener('resize', () => {
-      carousel.radii = getRadii();
+      carousel.spacing = getSpacing();
     });
 
     stage.addEventListener('pointerdown', (e) => {
@@ -158,9 +159,10 @@ window.NevaApp = (function () {
       const deltaX = e.clientX - carousel.lastX;
       carousel.totalDragDistance += Math.abs(deltaX);
 
-      carousel.targetAngle += deltaX * 0.35;
-      const instVel = (deltaX / dt) * 14;
-      carousel.velocity = carousel.velocity * 0.4 + instVel * 0.6;
+      const posDelta = -deltaX / (carousel.spacing || 365);
+      carousel.targetAngle += posDelta;
+      const instVel = (posDelta / dt) * 16;
+      carousel.velocity = carousel.velocity * 0.45 + instVel * 0.55;
 
       carousel.lastX = e.clientX;
       carousel.lastTime = now;
@@ -171,7 +173,7 @@ window.NevaApp = (function () {
       carousel.isDragging = false;
       stage.classList.remove('cursor-grabbing');
       stage.classList.add('cursor-grab');
-      carousel.velocity = Math.max(Math.min(carousel.velocity, 10), -10);
+      carousel.velocity = Math.max(Math.min(carousel.velocity, 0.35), -0.35);
     };
 
     window.addEventListener('pointerup', endDrag);
@@ -182,13 +184,12 @@ window.NevaApp = (function () {
 
     if (heroSection) {
       heroSection.addEventListener('keydown', (e) => {
-        const angleStep = 26;
         if (e.key === 'ArrowLeft') {
           carousel.velocity = 0;
-          carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep + angleStep;
+          carousel.targetAngle = Math.round(carousel.targetAngle) - 1;
         } else if (e.key === 'ArrowRight') {
           carousel.velocity = 0;
-          carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep - angleStep;
+          carousel.targetAngle = Math.round(carousel.targetAngle) + 1;
         } else if (e.key === ' ') {
           e.preventDefault();
           carousel.isPlaying = !carousel.isPlaying;
@@ -196,23 +197,30 @@ window.NevaApp = (function () {
       });
     }
 
-    const loop = () => {
+    const cachedCards = Array.from(document.querySelectorAll('[data-carousel-card]'));
+    let lastTs = performance.now();
+
+    const loop = (ts) => {
+      const dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+      const frameScale = dt * 60;
+
       if (!carousel.isDragging) {
-        if (Math.abs(carousel.velocity) > 0.02) {
-          carousel.targetAngle += carousel.velocity;
-          carousel.velocity *= 0.93;
+        if (Math.abs(carousel.velocity) > 0.001) {
+          carousel.targetAngle += carousel.velocity * frameScale;
+          carousel.velocity *= Math.pow(0.92, frameScale);
         } else {
           carousel.velocity = 0;
           if (carousel.isPlaying) {
-            const speedMultiplier = carousel.isHovered ? 0.3 : 1.0;
-            carousel.targetAngle -= 0.16 * speedMultiplier;
+            const speedMultiplier = carousel.isHovered ? 0.25 : 1.0;
+            carousel.targetAngle += 0.0032 * speedMultiplier * frameScale;
           }
         }
       }
 
-      const lerp = carousel.isDragging ? 0.25 : 0.085;
-      carousel.currentAngle += (carousel.targetAngle - carousel.currentAngle) * lerp;
-      updateCardTransforms(carousel.currentAngle);
+      const smoothFactor = 1 - Math.exp(-(carousel.isDragging ? 18 : 8.5) * dt);
+      carousel.currentAngle += (carousel.targetAngle - carousel.currentAngle) * smoothFactor;
+      updateCardTransforms(carousel.currentAngle, cachedCards);
 
       requestAnimationFrame(loop);
     };
@@ -220,16 +228,12 @@ window.NevaApp = (function () {
     requestAnimationFrame(loop);
   }
 
-  function updateCardTransforms(angle) {
-    const cards = document.querySelectorAll('[data-carousel-card]');
-    const count = cards.length;
+  function updateCardTransforms(pos, cards) {
+    const list = cards || document.querySelectorAll('[data-carousel-card]');
+    const count = list.length;
     if (!count) return;
 
-    // Sabit 26° aralık: Ekranda maksimum 6-7 kart görünür, tüm eserler sırayla döner
-    const angleStep = 26;
-    const { rx } = carousel.radii;
-
-    const pos = -angle / angleStep;
+    const spacing = carousel.spacing || 365;
     const newActive = ((Math.round(pos) % count) + count) % count;
 
     if (newActive !== carousel.activeIndex) {
@@ -237,62 +241,68 @@ window.NevaApp = (function () {
       updateCarouselSpotlight(newActive);
     }
 
-    cards.forEach((el, i) => {
+    for (let i = 0; i < count; i++) {
+      const el = list[i];
       let diff = ((i - pos) % count + count) % count;
       if (diff > count / 2) diff -= count;
 
-      if (Math.abs(diff) > 3.25) {
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
-        el.style.visibility = 'hidden';
-        el.style.zIndex = '0';
-        return;
+      const absDiff = Math.abs(diff);
+
+      if (absDiff > 3.15) {
+        if (el.style.visibility !== 'hidden') {
+          el.style.opacity = '0';
+          el.style.pointerEvents = 'none';
+          el.style.visibility = 'hidden';
+          el.style.zIndex = '0';
+        }
+        continue;
       }
 
       el.style.visibility = 'visible';
-      const relAngle = diff * angleStep;
-      const rad = (relAngle * Math.PI) / 180;
-      const cosVal = Math.cos(rad);
-      const sinVal = Math.sin(rad);
+      el.style.pointerEvents = absDiff < 2.4 ? 'auto' : 'none';
 
-      if (cosVal < 0.05) {
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
-        el.style.visibility = 'hidden';
-        el.style.zIndex = '0';
-        return;
-      }
+      const sign = diff < 0 ? -1 : 1;
+      const compressed =
+        absDiff <= 1
+          ? absDiff
+          : absDiff <= 2
+          ? 1 + (absDiff - 1) * 0.74
+          : 1.74 + (absDiff - 2) * 0.58;
+      const x = sign * compressed * spacing;
+      const y = -12 + Math.pow(absDiff, 1.35) * 24;
+      const scale =
+        absDiff <= 1
+          ? 1.08 - absDiff * 0.30
+          : Math.max(0.46, 0.78 - (absDiff - 1) * 0.16);
+      const opacity =
+        absDiff <= 1
+          ? 1 - absDiff * 0.16
+          : absDiff <= 2.2
+          ? Math.max(0.42, 0.84 - (absDiff - 1) * 0.32)
+          : Math.max(0, ((3.15 - absDiff) / 0.95) * 0.42);
+      const zIndex = Math.round(100 - absDiff * 25);
 
-      el.style.pointerEvents = 'auto';
-      const x = sinVal * rx;
-      const y = (1 - cosVal) * 8;
-      const distRatio = Math.max(0, (cosVal - 0.05) / 0.95);
-      const scale = 0.72 + 0.31 * Math.pow(distRatio, 1.3);
-      const opacity = Math.min(1, Math.max(0.08, Math.pow(distRatio, 1.5)));
-      const zIndex = Math.round(cosVal * 200);
-      const rotY = -relAngle * 0.6;
-      const blurAmount = distRatio < 0.55 ? (0.55 - distRatio) * 2.5 : 0;
-      const brightness = 0.78 + 0.25 * distRatio;
-
-      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotateY(${rotY.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+      el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
       el.style.opacity = opacity.toFixed(3);
       el.style.zIndex = `${zIndex}`;
-      el.style.filter = `blur(${blurAmount.toFixed(1)}px) brightness(${brightness.toFixed(2)})`;
 
       const badge = el.querySelector('[data-featured-badge]');
       if (i === newActive) {
-        el.classList.add('ring-2', 'ring-black', 'shadow-2xl');
+        el.classList.add('ring-2', 'ring-black/90', 'shadow-2xl');
         if (badge) { badge.classList.remove('hidden'); badge.classList.add('flex'); }
       } else {
-        el.classList.remove('ring-2', 'ring-black', 'shadow-2xl');
+        el.classList.remove('ring-2', 'ring-black/90', 'shadow-2xl');
         if (badge) { badge.classList.add('hidden'); badge.classList.remove('flex'); }
       }
-    });
+    }
   }
 
   function updateCarouselSpotlight(index) {
     const art = state.artworks[index];
     if (!art) return;
+
+    const bgEl = document.getElementById('hero-backdrop-img');
+    if (bgEl) bgEl.src = art.imageUrl;
 
     const imgEl = document.getElementById('spotlight-img');
     const titleEl = document.getElementById('spotlight-title');
@@ -305,35 +315,31 @@ window.NevaApp = (function () {
       metaEl.textContent = `${art.artist} · ${med}`;
     }
 
-    document.querySelectorAll('[data-carousel-dot]').forEach((dot, idx) => {
-      dot.className = idx === index
-        ? 'transition-all duration-300 rounded-full cursor-pointer w-7 h-1.5 bg-black'
-        : 'transition-all duration-300 rounded-full cursor-pointer w-1.5 h-1.5 bg-stone-300 hover:bg-stone-400';
-    });
+    const counterEl = document.getElementById('carousel-counter');
+    if (counterEl) {
+      counterEl.textContent = `${index + 1} / ${state.artworks.length}`;
+    }
   }
 
   function carouselPrev(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    const angleStep = 26;
     carousel.velocity = 0;
-    carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep + angleStep;
+    carousel.targetAngle = Math.round(carousel.targetAngle) - 1;
   }
 
   function carouselNext(e) {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    const angleStep = 26;
     carousel.velocity = 0;
-    carousel.targetAngle = Math.round(carousel.targetAngle / angleStep) * angleStep - angleStep;
+    carousel.targetAngle = Math.round(carousel.targetAngle) + 1;
   }
 
   function rotateToCard(index) {
     const count = Math.max(1, state.artworks.length);
-    const angleStep = 26;
     carousel.velocity = 0;
     let diff = index - carousel.activeIndex;
     if (diff > count / 2) diff -= count;
     if (diff < -count / 2) diff += count;
-    carousel.targetAngle -= diff * angleStep;
+    carousel.targetAngle = Math.round(carousel.targetAngle) + diff;
   }
 
   function handleCarouselCardClick(artworkId) {
@@ -355,8 +361,8 @@ window.NevaApp = (function () {
     document.querySelectorAll('.cat-filter-btn').forEach((btn) => {
       const isSelected = btn.getAttribute('data-cat-pill') === catId;
       btn.className = isSelected
-        ? 'cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap bg-black text-white shadow-xs font-semibold'
-        : 'cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap text-stone-700 hover:text-black hover:bg-stone-200/60';
+        ? 'cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border bg-black text-white border-black shadow-xs font-semibold'
+        : 'cat-filter-btn px-4 py-1.5 text-xs font-medium rounded-full transition-all cursor-pointer whitespace-nowrap border border-stone-200 bg-white text-stone-700 hover:text-black hover:border-black';
     });
     applyCatalogFilters();
   }

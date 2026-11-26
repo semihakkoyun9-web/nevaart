@@ -141,7 +141,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
       </div>
 
       {/* 5 Visual Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4 mb-8">
         {categories.map((cat) => {
           const sample = artworks.find((a) => a.category === cat.id);
           const count = artworks.filter((a) => a.category === cat.id).length;
@@ -156,7 +156,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
                   : 'border-stone-200 hover:border-stone-500 bg-white text-stone-900 shadow-xs'
               }`}
             >
-              <div className="h-24 w-full overflow-hidden relative bg-stone-200">
+              <div className="h-16 sm:h-24 w-full overflow-hidden relative bg-stone-200">
                 {sample && (
                   <img
                     src={sample.imageUrl}
@@ -164,11 +164,11 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 )}
-                <span className="absolute top-2 right-2 bg-black/80 text-white text-[10px] font-mono px-2 py-0.5 rounded-full">
+                <span className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-black/80 text-white text-[9px] sm:text-[10px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full">
                   {count} {currentLang === 'tr' ? 'Eser' : 'Works'}
                 </span>
               </div>
-              <div className="p-3.5">
+              <div className="p-2.5 sm:p-3.5">
                 <h3 className="font-display font-bold text-xs uppercase tracking-wide leading-snug">
                   {currentLang === 'tr' ? cat.nameTr : cat.nameEn}
                 </h3>
@@ -212,7 +212,7 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2">
           {COLOR_FAMILIES.map((cf) => {
             const isSel = selectedColor === cf.id;
             return (
@@ -222,9 +222,9 @@ export const CategoriesPage: React.FC<CategoriesPageProps> = ({
                   setSelectedColor(cf.id);
                   if (cf.id !== 'all') setSortBy('color');
                 }}
-                className={`px-3.5 py-2 rounded-full text-xs flex items-center gap-2 transition-all cursor-pointer border ${
+                className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer border ${
                   isSel
-                    ? 'bg-black text-white border-black font-semibold shadow-sm scale-105'
+                    ? 'bg-black text-white border-black font-semibold shadow-sm sm:scale-105'
                     : 'bg-stone-50 text-stone-800 border-stone-200 hover:border-stone-500'
                 }`}
               >

@@ -83,10 +83,10 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
             </div>
 
             {/* Clean Segmented Tabs */}
-            <div className="inline-flex p-1.5 bg-stone-900 border border-stone-800 rounded-full self-start md:self-end">
+            <div className="flex w-full sm:w-auto sm:inline-flex p-1.5 bg-stone-900 border border-stone-800 rounded-full self-start md:self-end">
               <button
                 onClick={() => setActiveTab('artworks')}
-                className={`px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`flex-1 sm:flex-initial justify-center px-3 sm:px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
                   activeTab === 'artworks'
                     ? 'bg-white text-black font-semibold shadow-sm'
                     : 'text-stone-400 hover:text-white'
@@ -94,12 +94,12 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
               >
                 <Heart className={`w-3.5 h-3.5 ${activeTab === 'artworks' ? 'fill-red-600 text-red-600' : ''}`} />
                 <span>
-                  {currentLang === 'tr' ? 'Beğenilen Eserler' : 'Saved Artworks'} ({likedArtworks.length})
+                  {currentLang === 'tr' ? 'Eserler' : 'Artworks'} ({likedArtworks.length})
                 </span>
               </button>
               <button
                 onClick={() => setActiveTab('quotes')}
-                className={`px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`flex-1 sm:flex-initial justify-center px-3 sm:px-5 py-2 rounded-full text-xs font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 sm:gap-2 ${
                   activeTab === 'quotes'
                     ? 'bg-white text-black font-semibold shadow-sm'
                     : 'text-stone-400 hover:text-white'
@@ -107,7 +107,7 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
               >
                 <Quote className="w-3.5 h-3.5" />
                 <span>
-                  {currentLang === 'tr' ? 'Beğenilen Sözler' : 'Saved Quotes'} ({likedQuotes.length})
+                  {currentLang === 'tr' ? 'Sözler' : 'Quotes'} ({likedQuotes.length})
                 </span>
               </button>
             </div>

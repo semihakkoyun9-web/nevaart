@@ -127,7 +127,7 @@ export const ExhibitionMapModal: React.FC<ExhibitionMapModalProps> = ({
               </div>
 
               {/* Scrollable museum list */}
-              <div className="max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
+              <div className="max-h-[220px] md:max-h-[440px] overflow-y-auto pr-1 space-y-2.5">
                 {filteredVenues.length === 0 ? (
                   <div className="p-6 text-center text-xs text-stone-500 bg-white border border-[#E8E2D9] rounded-xs">
                     {currentLang === 'tr'
@@ -179,7 +179,7 @@ export const ExhibitionMapModal: React.FC<ExhibitionMapModalProps> = ({
             <div className="md:col-span-7 bg-white border border-[#E8E2D9] p-5 flex flex-col justify-between shadow-xs">
               <div>
                 {/* Embedded Google Maps Iframe */}
-                <div className="w-full h-60 bg-stone-200 border border-stone-300 rounded overflow-hidden relative mb-4">
+                <div className="w-full h-48 sm:h-60 bg-stone-200 border border-stone-300 rounded overflow-hidden relative mb-4">
                   <iframe
                     key={selectedVenue.id}
                     title={selectedVenue.name}
@@ -237,12 +237,12 @@ export const ExhibitionMapModal: React.FC<ExhibitionMapModalProps> = ({
                   {currentLang === 'tr' ? 'Koordinat' : 'Coordinates'}:{' '}
                   {selectedVenue.lat.toFixed(4)}°, {selectedVenue.lng.toFixed(4)}°
                 </span>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <a
                     href={selectedVenue.website}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 text-xs font-medium rounded flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full sm:w-auto px-3.5 py-2 bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 text-xs font-medium rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>{currentLang === 'tr' ? 'Resmi Müze Sitesi' : 'Official Website'}</span>
@@ -251,7 +251,7 @@ export const ExhibitionMapModal: React.FC<ExhibitionMapModalProps> = ({
                     href={`https://maps.google.com/?q=${selectedVenue.lat},${selectedVenue.lng}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-4 py-2 bg-[#111113] hover:bg-stone-800 text-white text-xs font-medium rounded flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full sm:w-auto px-4 py-2 bg-[#111113] hover:bg-stone-800 text-white text-xs font-medium rounded flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Navigation className="w-3.5 h-3.5" />
                     <span>

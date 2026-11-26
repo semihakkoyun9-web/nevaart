@@ -8,42 +8,55 @@ $activeArt = $artworks[0] ?? null;
 <section 
   id="hero"
   tabindex="0"
-  class="relative pt-8 pb-16 px-4 overflow-hidden bg-white select-none outline-none"
+  class="relative pt-24 sm:pt-28 pb-16 px-4 overflow-hidden bg-[#141416] select-none outline-none"
 >
+  <!-- Dynamic Dark-Shaded Changing Artwork Backdrop -->
+  <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <?php if ($activeArt): ?>
+      <img
+        id="hero-backdrop-img"
+        src="<?= e($activeArt['imageUrl']) ?>"
+        alt=""
+        class="absolute inset-0 w-full h-full object-cover scale-105 blur-[1.5px] opacity-90 transition-opacity duration-700"
+      />
+    <?php endif; ?>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/52 via-black/38 to-[#FAFAFA]"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.06)_0%,rgba(0,0,0,0.44)_100%)]"></div>
+  </div>
+
   <!-- Editorial Header -->
-  <div class="max-w-5xl mx-auto text-center mb-6">
+  <div class="relative z-10 max-w-5xl mx-auto text-center mb-6">
     <!-- Eyebrow Label -->
-    <div class="inline-flex items-center gap-2 mb-3">
-      <span class="w-6 h-px bg-stone-400"></span>
-      <span class="text-[11px] sm:text-xs uppercase tracking-[0.28em] text-stone-500 font-semibold font-mono">
+    <div class="inline-flex items-center gap-2.5 mb-3">
+      <span class="w-6 h-px bg-[#C59B5F]/80"></span>
+      <span class="text-[11px] sm:text-xs uppercase tracking-[0.28em] text-[#E6CFA8] font-semibold font-mono">
         <?= $currentLang === 'tr' ? 'AÇIK SERGİ & SANAT ARŞİVİ' : 'OPEN EXHIBITION & ART ARCHIVE' ?>
       </span>
-      <span class="w-6 h-px bg-stone-400"></span>
+      <span class="w-6 h-px bg-[#C59B5F]/80"></span>
     </div>
 
     <!-- Big Bold Headline strictly localized -->
-    <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold text-black tracking-tight uppercase leading-[0.95]">
+    <h1 class="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-display font-extrabold text-white tracking-tight uppercase leading-[0.95] drop-shadow-lg">
       <?php if ($currentLang === 'tr'): ?>
         <span class="block">SANATLA BİR</span>
-        <span class="block font-light text-stone-900 mt-1">YOLCULUK</span>
+        <span class="block font-light text-stone-200 mt-1">YOLCULUK</span>
       <?php else: ?>
         <span class="block">A JOURNEY</span>
-        <span class="block font-light text-stone-900 mt-1">THROUGH ARTS</span>
+        <span class="block font-light text-stone-200 mt-1">THROUGH ARTS</span>
       <?php endif; ?>
     </h1>
 
-    <p class="text-stone-600 max-w-2xl mx-auto mt-4 text-xs sm:text-sm leading-relaxed">
+    <p class="text-stone-200/90 max-w-2xl mx-auto mt-4 text-xs sm:text-sm leading-relaxed drop-shadow-xs">
       <?= $currentLang === 'tr'
         ? 'Sanatçıların kendi çizim ve fotoğraflarını paylaştığı, dünya çapında ikonik başyapıtların yer aldığı açık dijital sanat galerisi. Eserleri keşfedin, yaratım hikayelerini okuyun ve sanatçılarla doğrudan iletişime geçin.'
         : 'A digital gallery showcasing both independent artists’ original drawings and photography alongside timeless world-famous masterpieces. Discover the stories, analyze the craft, and connect directly with the creators.' ?>
     </p>
   </div>
 
-  <!-- 3D Panoramic Curved Gallery Stage -->
+  <!-- Smooth Centered Panoramic Gallery Stage -->
   <div 
     id="carousel-stage-container"
-    class="relative max-w-7xl mx-auto h-[440px] sm:h-[480px] md:h-[510px] flex items-center justify-center select-none touch-none cursor-grab"
-    style="perspective: 1200px; perspective-origin: 50% 42%;"
+    class="relative z-10 max-w-5xl mx-auto h-[410px] sm:h-[475px] md:h-[515px] flex items-center justify-center select-none touch-pan-y overflow-hidden [mask-image:linear-gradient(to_right,transparent_0%,black_7%,black_93%,transparent_100%)] cursor-grab"
   >
     <!-- Subtle Ambient Curved Guide Shadow -->
     <div 
@@ -65,7 +78,7 @@ $activeArt = $artworks[0] ?? null;
           data-carousel-card="<?= (int)$index ?>"
           data-artwork-id="<?= (int)$art['id'] ?>"
           onclick="NevaApp.handleCarouselCardClick(<?= (int)$art['id'] ?>)"
-          class="carousel-card-item absolute w-[260px] sm:w-[310px] md:w-[340px] bg-white border border-stone-200/90 p-3 sm:p-3.5 rounded-2xl cursor-pointer pointer-events-auto group will-change-transform transition-shadow duration-300 <?= $isCenter ? 'ring-2 ring-black shadow-2xl hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)]' : 'hover:border-stone-400 shadow-md' ?>"
+          class="carousel-card-item absolute w-[225px] sm:w-[290px] md:w-[325px] bg-white border border-stone-200/95 p-3 sm:p-3.5 rounded-2xl cursor-pointer pointer-events-auto group will-change-transform transition-shadow duration-300 <?= $isCenter ? 'ring-2 ring-black/90 shadow-2xl' : 'hover:border-stone-400 shadow-xl' ?>"
         >
           <!-- Museum Exhibition Frame -->
           <div class="aspect-4/3 w-full bg-[#F4EFEB] overflow-hidden relative rounded-xl border border-stone-200/90">
@@ -140,47 +153,46 @@ $activeArt = $artworks[0] ?? null;
       onpointerdown="event.stopPropagation()"
       onclick="NevaApp.carouselPrev(event)"
       aria-label="<?= $currentLang === 'tr' ? 'Önceki eser' : 'Previous artwork' ?>"
-      class="absolute left-2 sm:left-6 md:left-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/95 hover:bg-white border border-stone-200 text-stone-900 flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-[200] cursor-pointer hover:scale-110 active:scale-95 group"
+      class="absolute left-1.5 sm:left-6 md:left-10 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/95 hover:bg-white border border-stone-200 text-stone-900 flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-[200] cursor-pointer hover:scale-110 active:scale-95 group"
     >
-      <?= icon('chevron-left', 'w-5 h-5 group-hover:-translate-x-0.5 transition-transform') ?>
+      <?= icon('chevron-left', 'w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform') ?>
     </button>
     <button
       type="button"
       onpointerdown="event.stopPropagation()"
       onclick="NevaApp.carouselNext(event)"
       aria-label="<?= $currentLang === 'tr' ? 'Sonraki eser' : 'Next artwork' ?>"
-      class="absolute right-2 sm:right-6 md:right-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/95 hover:bg-white border border-stone-200 text-stone-900 flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-[200] cursor-pointer hover:scale-110 active:scale-95 group"
+      class="absolute right-1.5 sm:right-6 md:right-10 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/95 hover:bg-white border border-stone-200 text-stone-900 flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-[200] cursor-pointer hover:scale-110 active:scale-95 group"
     >
-      <?= icon('chevron-right', 'w-5 h-5 group-hover:translate-x-0.5 transition-transform') ?>
+      <?= icon('chevron-right', 'w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-0.5 transition-transform') ?>
     </button>
   </div>
 
   <!-- Active Artwork Spotlight Preview Strip -->
   <?php if ($activeArt): ?>
-    <div class="max-w-lg mx-auto mt-4 px-4">
-      <!-- Pagination Dots -->
-      <div id="carousel-dots-container" class="flex items-center justify-center gap-1.5 mb-3">
-        <?php foreach ($artworks as $dotIdx => $_): ?>
-          <button
-            type="button"
-            data-carousel-dot="<?= (int)$dotIdx ?>"
-            onclick="NevaApp.rotateToCard(<?= (int)$dotIdx ?>)"
-            aria-label="Go to slide <?= (int)($dotIdx + 1) ?>"
-            class="transition-all duration-300 rounded-full cursor-pointer <?= $dotIdx === 0 ? 'w-7 h-1.5 bg-black' : 'w-1.5 h-1.5 bg-stone-300 hover:bg-stone-400' ?>"
-          ></button>
-        <?php endforeach; ?>
+    <div class="max-w-lg mx-auto mt-4 px-2 sm:px-4">
+      <!-- Compact Pagination Dots & Counter -->
+      <div class="flex items-center justify-center gap-2 mb-3">
+        <div id="carousel-dots-container" class="flex items-center justify-center gap-1.5">
+          <?php foreach ([-3, -2, -1, 0, 1, 2, 3] as $offset): ?>
+            <span class="rounded-full transition-all duration-300 <?= $offset === 0 ? 'w-7 h-1.5 bg-black' : (abs($offset) === 1 ? 'w-2 h-1.5 bg-stone-400' : 'w-1.5 h-1.5 bg-stone-300') ?>"></span>
+          <?php endforeach; ?>
+        </div>
+        <span id="carousel-counter" class="text-[10px] font-mono text-stone-500 bg-stone-100 border border-stone-200 px-2 py-0.5 rounded-full">
+          1 / <?= count($artworks) ?>
+        </span>
       </div>
 
       <!-- Quick Details Pill -->
-      <div class="px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-full shadow-xs flex items-center justify-between text-xs transition-all hover:border-stone-400">
-        <div class="flex items-center gap-2.5 truncate pr-3">
+      <div class="px-3 sm:px-4 py-2 sm:py-2.5 bg-stone-50 border border-stone-200 rounded-full shadow-xs flex items-center justify-between gap-2 text-xs transition-all hover:border-stone-400">
+        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 pr-1 sm:pr-3">
           <img 
             id="spotlight-img"
             src="<?= e($activeArt['imageUrl']) ?>" 
             alt="" 
             class="w-7 h-7 rounded-full object-cover border border-stone-300 shrink-0" 
           />
-          <div class="truncate">
+          <div class="min-w-0 flex-1">
             <span id="spotlight-title" class="font-semibold text-stone-900 truncate block text-xs">
               <?= e($activeArt['title']) ?>
             </span>
@@ -193,9 +205,9 @@ $activeArt = $artworks[0] ?? null;
           type="button"
           id="spotlight-btn"
           onclick="NevaApp.openActiveCarouselArtwork()"
-          class="px-4 py-1.5 bg-black hover:bg-stone-800 text-white text-[11px] font-medium rounded-full transition-colors whitespace-nowrap cursor-pointer shadow-xs"
+          class="px-3 sm:px-4 py-1.5 bg-black hover:bg-stone-800 text-white text-[11px] font-medium rounded-full transition-colors whitespace-nowrap cursor-pointer shadow-xs shrink-0"
         >
-          <?= $currentLang === 'tr' ? 'Hikayesini Oku →' : 'Read Story →' ?>
+          <?= $currentLang === 'tr' ? 'İncele →' : 'Read →' ?>
         </button>
       </div>
     </div>

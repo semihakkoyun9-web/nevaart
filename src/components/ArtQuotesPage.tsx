@@ -74,8 +74,8 @@ export const ArtQuotesPage: React.FC<ArtQuotesPageProps> = ({
     <div className="min-h-screen bg-[#FAF8F5]">
       {/* Dark Onyx Luxury Editorial Banner */}
       <div className="bg-[#111113] text-white border-b border-stone-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-end">
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2.5 mb-4">
                 <span className="w-6 h-px bg-amber-500" />
@@ -83,7 +83,7 @@ export const ArtQuotesPage: React.FC<ArtQuotesPageProps> = ({
                   {currentLang === 'tr' ? 'DOĞRULANMIŞ SANAT TARİHİ MANİFESTOLARI' : 'VERIFIED ART HISTORY ARCHIVE'}
                 </span>
               </div>
-              <h1 className="text-4xl sm:text-6xl font-serif font-semibold tracking-tight leading-[1.08] text-white">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-semibold tracking-tight leading-[1.08] text-white">
                 {currentLang === 'tr' ? 'Sanat Tarihçileri ve Ustalardan Sözler' : 'Words of Art Historians & Masters'}
               </h1>
               <p className="text-sm text-stone-400 mt-4 max-w-xl leading-relaxed">
@@ -133,7 +133,7 @@ export const ArtQuotesPage: React.FC<ArtQuotesPageProps> = ({
             ))}
           </div>
 
-          <div className="relative min-w-[270px]">
+          <div className="relative w-full lg:w-auto lg:min-w-[270px]">
             <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -146,13 +146,13 @@ export const ArtQuotesPage: React.FC<ArtQuotesPageProps> = ({
         </div>
 
         {/* Luxury Editorial Quotes Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
           {filtered.map((item) => {
             const isLiked = likedQuoteIds.includes(item.id);
             return (
               <article
                 key={item.id}
-                className="group bg-white border border-[#E8E2D9] hover:border-stone-900 rounded-2xl p-7 flex flex-col justify-between transition-all duration-300 shadow-2xs hover:shadow-xl hover:-translate-y-0.5"
+                className="group bg-white border border-[#E8E2D9] hover:border-stone-900 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all duration-300 shadow-2xs hover:shadow-xl hover:-translate-y-0.5"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-5">
